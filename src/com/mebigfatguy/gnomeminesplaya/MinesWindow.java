@@ -12,6 +12,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.awt.image.IndexColorModel;
 import java.util.Arrays;
 
 public class MinesWindow {
@@ -36,11 +37,18 @@ public class MinesWindow {
 	private static final int LARGE_COLUMNS = 30;
 	private static final int LARGE_ROWS = 16;
 
+	private final int WHITE = 0;
+	private final int BLACK = 1;
+	private final int RED = 2;
+	private final int GREEN = 3;
+	private final int BLUE = 4;
+
 	private Process minesProcess;
 	private Point topLeft;
 	private Rectangle boardBounds;
 	private int tileSize;
 	private final int[][] board = new int[30][16];
+	private final byte[][] colorTable = new byte[3][5];
 
 	public MinesWindow() throws MinesException {
 		launchMines();
@@ -48,6 +56,26 @@ public class MinesWindow {
 		for (int x = 0; x < LARGE_COLUMNS; x++) {
 			Arrays.fill(board[x], -1);
 		}
+		colorTable[0][WHITE] = (byte)0xFF;
+		colorTable[1][WHITE] = (byte)0xFF;
+		colorTable[2][WHITE] = (byte)0xFF;
+
+		colorTable[0][BLACK] = 0x00; //Black
+		colorTable[1][BLACK] = 0x00;
+		colorTable[2][BLACK] = 0x00;
+
+		colorTable[0][RED] = (byte)0xFF; //Red
+		colorTable[1][RED] = 0x00;
+		colorTable[2][RED] = 0x00;
+
+		colorTable[0][GREEN] = 0x00; //Green
+		colorTable[1][GREEN] = (byte)0xFF;
+		colorTable[2][GREEN] = 0x00;
+
+		colorTable[0][BLUE] = 0x00; //Blue
+		colorTable[1][BLUE] = 0x00;
+		colorTable[2][BLUE] = (byte)0xFF;
+
 	}
 
 	public void click(int x, int y) throws MinesException {
@@ -57,6 +85,8 @@ public class MinesWindow {
 			r.mousePress(InputEvent.BUTTON1_MASK);
 			r.delay(100);
 			r.mouseRelease(InputEvent.BUTTON1_MASK);
+
+			updateBoard();
 		} catch (AWTException awte) {
 			throw new MinesException("Failed to click cell (" + x + ", " + y + ")", awte);
 		}
@@ -185,5 +215,51 @@ public class MinesWindow {
 		dstImage.getGraphics().drawImage(srcImage, 0, 0, srcImage.getWidth(), srcImage.getHeight(), Color.WHITE, null);
 
 		return dstImage;
+	}
+
+	private void updateBoard() throws MinesException {
+		try {
+			Rectangle screenBounds = getScreenRect();
+			Robot r = new Robot();
+			BufferedImage screen = r.createScreenCapture(screenBounds);
+
+			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
+			BufferedImage image = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
+
+			for (int y = 0; y < LARGE_ROWS; y++) {
+				NextGrid: for (int x = 0; x < LARGE_COLUMNS; x++) {
+					if (board[x][y] == -1) {
+						int tX = boardBounds.x + x * tileSize;
+						int tY = boardBounds.y + y * tileSize;
+
+						image.getGraphics().drawImage(screen, 0, 0, tileSize, tileSize, tX, tY, tX + tileSize, tY + tileSize, null);
+						DataBuffer buffer = image.getRaster().getDataBuffer();
+
+						for (int yy = 0; yy < tileSize; yy++) {
+							for (int xx = 0; xx < tileSize; x++) {
+
+								int value = buffer.getElem(yy * tileSize + xx);
+								switch (value) {
+								case RED:
+									board[x][y] = 3;
+									break NextGrid;
+
+								case GREEN:
+									board[x][y] = 2;
+									break NextGrid;
+
+								case BLUE:
+									board[x][y] = 1;
+									break NextGrid;
+								}
+							}
+						}
+					}
+
+				}
+			}
+		} catch (AWTException awte) {
+			throw new MinesException("Failed updating the board status", awte);
+		}
 	}
 }
