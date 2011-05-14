@@ -17,6 +17,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -24,6 +25,9 @@ import javax.swing.JLabel;
 import javax.swing.WindowConstants;
 
 public class MinesWindow {
+
+	public static final int LARGE_COLUMNS = 30;
+	public static final int LARGE_ROWS = 16;
 
 	private static final int MENUBAR_HEIGHT = 20;
 	private static final Point SETTINGS_MENU_OFFSET = new Point(90, 20);
@@ -40,9 +44,6 @@ public class MinesWindow {
 
 	private static final double TOP_FRAC = 0.195;
 	private static final double BOTTOM_FRAC = 0.847;
-
-	private static final int LARGE_COLUMNS = 30;
-	private static final int LARGE_ROWS = 16;
 
 	private static final int GREY_EMPTY = 0;
 	private static final int BLUE_ONE = 1;
@@ -109,19 +110,12 @@ public class MinesWindow {
 	public Point findMineLocation() {
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				for (int n = -1; n < 2; n++) {
-					if (neighborDemandsFlag(x + n, y - 1, x, y)) {
-						return new Point(x, y);
-					}
-				}
-				for (int n = -1; n < 2; n+=2) {
-					if (neighborDemandsFlag(x + n, y, x, y)) {
-						return new Point(x, y);
-					}
-				}
-				for (int n = -1; n < 2; n++) {
-					if (neighborDemandsFlag(x + n, y + 1, x, y)) {
-						return new Point(x, y);
+				Point loc = new Point(x, y);
+				Iterator<Point> it = new NeighborIterator(loc);
+				while (it.hasNext()) {
+					Point neighbor = it.next();
+					if (neighborDemandsFlag(neighbor, loc)) {
+						return loc;
 					}
 				}
 			}
@@ -379,7 +373,12 @@ public class MinesWindow {
 		}
 	}
 
-	private boolean neighborDemandsFlag(int neighborX, int neighborY, int x, int y) {
+	private boolean neighborDemandsFlag(Point neighbor, Point loc) {
+		int neededBombs = board[neighbor.x][neighbor.y];
+		if (neededBombs <= 0) {
+			return false;
+		}
+
 		return false;
 	}
 
