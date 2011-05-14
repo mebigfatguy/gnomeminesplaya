@@ -254,11 +254,11 @@ public class MinesWindow {
 			BufferedImage image = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
 
 			{//Debug
-				int tX = boardBounds.x + clickX * tileSize;
-				int tY = boardBounds.y + clickY * tileSize;
-
-				image.getGraphics().drawImage(screen, 0, 0, tileSize, tileSize, tX, tY, tX + tileSize, tY + tileSize, null);
-				debug(clickX, clickY, image);
+				//				int tX = boardBounds.x + clickX * tileSize;
+				//				int tY = boardBounds.y + clickY * tileSize;
+				//
+				//				image.getGraphics().drawImage(screen, 0, 0, tileSize, tileSize, tX, tY, tX + tileSize, tY + tileSize, null);
+				//				debug(clickX, clickY, image);
 			}
 
 			for (int y = 0; y < LARGE_ROWS; y++) {
@@ -270,46 +270,36 @@ public class MinesWindow {
 						image.getGraphics().drawImage(screen, 0, 0, tileSize, tileSize, tX, tY, tX + tileSize, tY + tileSize, null);
 						DataBuffer buffer = image.getRaster().getDataBuffer();
 
-						boolean hadEmpty = false;
-						boolean hadUnknown = false;
-						NextGrid: for (int yy = 0; yy < tileSize; yy++) {
+						int[] colorCounts = new int[NUM_COLORS];
+						Arrays.fill(colorCounts, 0);
+
+						int color = -1;
+						int maxPixels = -1;
+
+						for (int yy = 0; yy < tileSize; yy++) {
 							for (int xx = 0; xx < tileSize; xx++) {
 
 								int value = buffer.getElem(yy * tileSize + xx);
-								switch (value) {
-								case GREY_EMPTY:
-									hadEmpty = true;
-									break;
+								colorCounts[value]++;
 
-								case BLUE_ONE:
-									board[x][y] = 1;
-									break NextGrid;
-
-								case GREEN_TWO:
-									board[x][y] = 2;
-									break NextGrid;
-
-								case RED_THREE:
-									board[x][y] = 3;
-									break NextGrid;
-
-								case DKBLUE_FOUR:
-									board[x][y] = 4;
-									break NextGrid;
-
-								case YELLOW_BOMB:
-									board[x][y] = Integer.MAX_VALUE;
-									return true;
-
-								case DKGREY_UNKNOWN:
-									hadUnknown = true;
-									break;
+								for (int c = BLUE_ONE; c <= BLACK; c++) {
+									if (colorCounts[c] > maxPixels) {
+										maxPixels = colorCounts[c];
+										color = c;
+									}
 								}
 							}
 						}
 
-						if ((board[x][y] <= 0) && !hadUnknown && hadEmpty) {
-							board[x][y] = 0;
+						if (maxPixels > 0) {
+							if ((color == BLACK) || (color == YELLOW_BOMB)) {
+								board[x][y] = Integer.MAX_VALUE;
+								return true;
+							} else {
+								board[x][y] = color;
+							}
+						} else if (colorCounts[GREY_EMPTY] > colorCounts[DKGREY_UNKNOWN]) {
+							board[x][y] = GREY_EMPTY;
 						}
 
 					}
