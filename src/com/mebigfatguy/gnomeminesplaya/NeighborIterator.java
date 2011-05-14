@@ -10,11 +10,11 @@ public class NeighborIterator implements Iterator<Point> {
 	private final List<Point> neighbors = new ArrayList<Point>();
 	private final Iterator<Point> it;
 
-	public NeighborIterator(Point p) {
+	public NeighborIterator(Point p, int columns, int rows) {
 		if (p.y > 0) {
 			for (int n = -1; n < 2; n++) {
 				int x = p.x + n;
-				if ((x > 0) && (x < MinesWindow.LARGE_COLUMNS)) {
+				if ((x > 0) && (x < columns)) {
 					neighbors.add(new Point(x, p.y - 1));
 				}
 			}
@@ -22,14 +22,14 @@ public class NeighborIterator implements Iterator<Point> {
 
 		for (int n = -1; n < 2; n+=2) {
 			int x = p.x + n;
-			if ((x > 0) && (x < MinesWindow.LARGE_COLUMNS)) {
+			if ((x > 0) && (x < columns)) {
 				neighbors.add(new Point(x, p.y));
 			}
 		}
 		for (int n = -1; n < 2; n++) {
-			if (p.y < MinesWindow.LARGE_ROWS - 1) {
+			if (p.y < rows - 1) {
 				int x = p.x + n;
-				if ((x > 0) && (x < MinesWindow.LARGE_COLUMNS)) {
+				if ((x > 0) && (x < columns)) {
 					neighbors.add(new Point(x, p.y + 1));
 				}
 			}
