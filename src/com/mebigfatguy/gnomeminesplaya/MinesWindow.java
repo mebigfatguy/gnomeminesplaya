@@ -18,8 +18,9 @@ import java.awt.image.IndexColorModel;
 import java.util.Arrays;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JWindow;
+import javax.swing.WindowConstants;
 
 public class MinesWindow {
 
@@ -112,7 +113,7 @@ public class MinesWindow {
 			r.delay(100);
 			r.mouseRelease(InputEvent.BUTTON1_MASK);
 
-			return updateBoard();
+			return updateBoard(x, y);
 		} catch (AWTException awte) {
 			throw new MinesException("Failed to click cell (" + x + ", " + y + ")", awte);
 		}
@@ -243,7 +244,7 @@ public class MinesWindow {
 		return dstImage;
 	}
 
-	private boolean updateBoard() throws MinesException {
+	private boolean updateBoard(int clickX, int clickY) throws MinesException {
 		try {
 			Rectangle screenBounds = getScreenRect();
 			Robot r = new Robot();
@@ -252,8 +253,16 @@ public class MinesWindow {
 			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
 			BufferedImage image = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
 
+			{//Debug
+				int tX = boardBounds.x + clickX * tileSize;
+				int tY = boardBounds.y + clickY * tileSize;
+
+				image.getGraphics().drawImage(screen, 0, 0, tileSize, tileSize, tX, tY, tX + tileSize, tY + tileSize, null);
+				debug(clickX, clickY, image);
+			}
+
 			for (int y = 0; y < LARGE_ROWS; y++) {
-				NextGrid: for (int x = 0; x < LARGE_COLUMNS; x++) {
+				for (int x = 0; x < LARGE_COLUMNS; x++) {
 					if (board[x][y] == -1) {
 						int tX = boardBounds.x + x * tileSize;
 						int tY = boardBounds.y + y * tileSize;
@@ -261,25 +270,27 @@ public class MinesWindow {
 						image.getGraphics().drawImage(screen, 0, 0, tileSize, tileSize, tX, tY, tX + tileSize, tY + tileSize, null);
 						DataBuffer buffer = image.getRaster().getDataBuffer();
 
-						for (int yy = 0; yy < tileSize; yy++) {
+						boolean hadEmpty = false;
+						boolean hadUnknown = false;
+						NextGrid: for (int yy = 0; yy < tileSize; yy++) {
 							for (int xx = 0; xx < tileSize; xx++) {
 
 								int value = buffer.getElem(yy * tileSize + xx);
 								switch (value) {
 								case GREY_EMPTY:
-									board[x][y] = 0;
-									break NextGrid;
+									hadEmpty = true;
+									break;
 
-								case RED_THREE:
-									board[x][y] = 3;
+								case BLUE_ONE:
+									board[x][y] = 1;
 									break NextGrid;
 
 								case GREEN_TWO:
 									board[x][y] = 2;
 									break NextGrid;
 
-								case BLUE_ONE:
-									board[x][y] = 1;
+								case RED_THREE:
+									board[x][y] = 3;
 									break NextGrid;
 
 								case DKBLUE_FOUR:
@@ -288,10 +299,17 @@ public class MinesWindow {
 
 								case YELLOW_BOMB:
 									board[x][y] = Integer.MAX_VALUE;
-									debug(image);
 									return true;
+
+								case DKGREY_UNKNOWN:
+									hadUnknown = true;
+									break;
 								}
 							}
+						}
+
+						if ((board[x][y] <= 0) && !hadUnknown && hadEmpty) {
+							board[x][y] = 0;
 						}
 
 					}
@@ -303,17 +321,23 @@ public class MinesWindow {
 		}
 	}
 
-	private void debug(BufferedImage image) {
-		final JWindow w = new JWindow();
-		w.setBounds(new Rectangle(0, 0, tileSize, tileSize));
+	private void debug(int x, int y, BufferedImage image) {
+		try { Thread.sleep(2000); } catch (Exception e) {}
+		final JDialog d = new JDialog();
+		d.setTitle("(" + x + "," + y + ")");
 		JLabel l = new JLabel(new ImageIcon(image));
-		w.add(l);
-		w.setVisible(true);
-		w.addMouseListener(new MouseAdapter() {
+		d.add(l);
+		d.pack();
+		d.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				w.dispose();
+				d.dispose();
+				try { Thread.sleep(2000); } catch (Exception ee) {}
 			}
 		});
+		d.setLocationRelativeTo(null);
+		d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		d.setModal(true);
+		d.setVisible(true);
 	}
 }

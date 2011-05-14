@@ -19,11 +19,12 @@ public class GnomeMinesPlaya {
 
 			while (!bomb && !mw.isFinished()) {
 
+				int[][] board = mw.getBoard();
 				boolean isUnknown = false;
 				while (!isUnknown) {
 					x = sr.nextInt(30);
 					y = sr.nextInt(16);
-					isUnknown = mw.getBoard()[x][y] == -1;
+					isUnknown = board[x][y] == -1;
 				}
 
 				bomb = mw.click(x, y);
