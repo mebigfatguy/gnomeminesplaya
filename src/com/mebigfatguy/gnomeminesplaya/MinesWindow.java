@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 import javax.swing.ImageIcon;
@@ -103,6 +104,67 @@ public class MinesWindow {
 		colorTable[0][DKGREY_UNKNOWN] = (byte)0xC4;
 		colorTable[1][DKGREY_UNKNOWN] = (byte)0xB7;
 		colorTable[2][DKGREY_UNKNOWN] = (byte)0xA4;
+	}
+
+	public Point findPossibleMine() {
+		for (int y = 0; y < LARGE_ROWS; y++) {
+			for (int x = 0; x < LARGE_COLUMNS; x++) {
+
+			}
+		}
+
+		return null;
+	}
+
+	public Point findSafeMove() {
+
+		for (int y = 0; y < LARGE_ROWS; y++) {
+			for (int x = 0; x < LARGE_COLUMNS; x++) {
+
+			}
+		}
+
+		return null;
+	}
+
+	public Point findSafestMove() {
+
+		SecureRandom sr = new SecureRandom();
+
+		int x = sr.nextInt(LARGE_COLUMNS);
+		int y = sr.nextInt(LARGE_ROWS);
+
+		while (board[x][y] != -1) {
+			x = sr.nextInt(LARGE_COLUMNS);
+			y = sr.nextInt(LARGE_ROWS);
+		}
+
+		return new Point(x, y);
+
+		//		Point bestPoint = new Point(0, 0);
+		//		double bestScore = Double.MAX_VALUE;
+		//
+		//		for (int y = 0; y < LARGE_ROWS; y++) {
+		//			for (int x = 0; x < LARGE_COLUMNS; x++) {
+		//
+		//			}
+		//		}
+		//
+		//		return bestPoint;
+	}
+
+	public boolean placeMine(int x, int y) throws MinesException {
+		try {
+			Robot r = new Robot();
+			r.mouseMove(boardBounds.x + x * tileSize + tileSize / 2, boardBounds.y + y * tileSize + tileSize / 2);
+			r.mousePress(InputEvent.BUTTON2_MASK);
+			r.delay(100);
+			r.mouseRelease(InputEvent.BUTTON2_MASK);
+
+			return updateBoard(x, y);
+		} catch (AWTException awte) {
+			throw new MinesException("Failed to place mine flag (" + x + ", " + y + ")", awte);
+		}
 	}
 
 	public boolean click(int x, int y) throws MinesException {
