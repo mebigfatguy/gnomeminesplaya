@@ -18,7 +18,7 @@ public class GnomeMinesPlaya {
 
 			while (!bomb && !mw.isFinished()) {
 
-				Point mine = mw.findPossibleMine();
+				Point mine = mw.findMineLocation();
 				if (mine != null) {
 					mw.placeMine(mine.x, mine.y);
 				} else {

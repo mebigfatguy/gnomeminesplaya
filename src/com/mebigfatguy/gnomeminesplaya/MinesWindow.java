@@ -106,10 +106,24 @@ public class MinesWindow {
 		colorTable[2][DKGREY_UNKNOWN] = (byte)0xA4;
 	}
 
-	public Point findPossibleMine() {
+	public Point findMineLocation() {
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-
+				for (int n = -1; n < 2; n++) {
+					if (neighborDemandsFlag(x + n, y - 1, x, y)) {
+						return new Point(x, y);
+					}
+				}
+				for (int n = -1; n < 2; n+=2) {
+					if (neighborDemandsFlag(x + n, y, x, y)) {
+						return new Point(x, y);
+					}
+				}
+				for (int n = -1; n < 2; n++) {
+					if (neighborDemandsFlag(x + n, y + 1, x, y)) {
+						return new Point(x, y);
+					}
+				}
 			}
 		}
 
@@ -315,14 +329,6 @@ public class MinesWindow {
 			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
 			BufferedImage image = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
 
-			{//Debug
-				//				int tX = boardBounds.x + clickX * tileSize;
-				//				int tY = boardBounds.y + clickY * tileSize;
-				//
-				//				image.getGraphics().drawImage(screen, 0, 0, tileSize, tileSize, tX, tY, tX + tileSize, tY + tileSize, null);
-				//				debug(clickX, clickY, image);
-			}
-
 			for (int y = 0; y < LARGE_ROWS; y++) {
 				for (int x = 0; x < LARGE_COLUMNS; x++) {
 					if (board[x][y] == -1) {
@@ -371,6 +377,10 @@ public class MinesWindow {
 		} catch (AWTException awte) {
 			throw new MinesException("Failed updating the board status", awte);
 		}
+	}
+
+	private boolean neighborDemandsFlag(int neighborX, int neighborY, int x, int y) {
+		return false;
 	}
 
 	private void debug(int x, int y, BufferedImage image) {
