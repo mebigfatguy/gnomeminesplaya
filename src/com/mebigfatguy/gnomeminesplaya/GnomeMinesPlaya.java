@@ -1,5 +1,7 @@
 package com.mebigfatguy.gnomeminesplaya;
 
+import java.security.SecureRandom;
+
 import javax.swing.JOptionPane;
 
 public class GnomeMinesPlaya {
@@ -9,9 +11,18 @@ public class GnomeMinesPlaya {
 		try {
 			MinesWindow mw = new MinesWindow();
 
+			SecureRandom sr = new SecureRandom();
+			int x = 0;
+			int y = 0;
+
 			while (!mw.isFinished()) {
-				int x = (int)(Math.random() * 30);
-				int y = (int)(Math.random() * 16);
+
+				boolean isUnknown = false;
+				while (!isUnknown) {
+					x = sr.nextInt(30);
+					y = sr.nextInt(16);
+					isUnknown = mw.getBoard()[x][y] == -1;
+				}
 
 				mw.click(x, y);
 				Thread.sleep(4000);
