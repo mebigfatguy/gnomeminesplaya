@@ -236,7 +236,7 @@ public class MinesWindow {
 						DataBuffer buffer = image.getRaster().getDataBuffer();
 
 						for (int yy = 0; yy < tileSize; yy++) {
-							for (int xx = 0; xx < tileSize; x++) {
+							for (int xx = 0; xx < tileSize; xx++) {
 
 								int value = buffer.getElem(yy * tileSize + xx);
 								switch (value) {
