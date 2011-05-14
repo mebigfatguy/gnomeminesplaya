@@ -10,10 +10,16 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.util.Arrays;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JWindow;
 
 public class MinesWindow {
 
@@ -28,8 +34,7 @@ public class MinesWindow {
 	private static final double CLOSE_X_FRAC = 0.60;
 	private static final double CLOSE_Y_FRAC = 0.66;
 
-	private static final int LEFT_BORDER = 10;
-	private static final int RIGHT_BORDER = 10;
+	private static final int BORDER = 10;
 
 	private static final double TOP_FRAC = 0.195;
 	private static final double BOTTOM_FRAC = 0.847;
@@ -37,18 +42,23 @@ public class MinesWindow {
 	private static final int LARGE_COLUMNS = 30;
 	private static final int LARGE_ROWS = 16;
 
-	private final int WHITE = 0;
-	private final int BLACK = 1;
-	private final int RED = 2;
-	private final int GREEN = 3;
-	private final int BLUE = 4;
+	private static final int GREY_EMPTY = 0;
+	private static final int BLUE_ONE = 1;
+	private static final int GREEN_TWO = 2;
+	private static final int RED_THREE = 3;
+	private static final int DKBLUE_FOUR = 4;
+	private static final int YELLOW_BOMB = 5;
+	private static final int WHITE = 6;
+	private static final int BLACK = 7;
+	private static final int DKGREY_UNKNOWN = 8;
+	private static final int NUM_COLORS = 9;
 
 	private Process minesProcess;
 	private Point topLeft;
 	private Rectangle boardBounds;
 	private int tileSize;
 	private final int[][] board = new int[30][16];
-	private final byte[][] colorTable = new byte[3][5];
+	private final byte[][] colorTable = new byte[3][NUM_COLORS];
 
 	public MinesWindow() throws MinesException {
 		launchMines();
@@ -56,29 +66,45 @@ public class MinesWindow {
 		for (int x = 0; x < LARGE_COLUMNS; x++) {
 			Arrays.fill(board[x], -1);
 		}
+
+		colorTable[0][GREY_EMPTY] = (byte)0xF0;
+		colorTable[1][GREY_EMPTY] = (byte)0xEC;
+		colorTable[2][GREY_EMPTY] = (byte)0xE3;
+
+		colorTable[0][BLUE_ONE] = (byte)0x00;
+		colorTable[1][BLUE_ONE] = (byte)0x00;
+		colorTable[2][BLUE_ONE] = (byte)0xFF;
+
+		colorTable[0][GREEN_TWO] = (byte)0x00;
+		colorTable[1][GREEN_TWO] = (byte)0xA0;
+		colorTable[2][GREEN_TWO] = (byte)0x00;
+
+		colorTable[0][RED_THREE] = (byte)0xFF;
+		colorTable[1][RED_THREE] = (byte)0x00;
+		colorTable[2][RED_THREE] = (byte)0x00;
+
+		colorTable[0][DKBLUE_FOUR] = (byte)0x00;
+		colorTable[1][DKBLUE_FOUR] = (byte)0x00;
+		colorTable[2][DKBLUE_FOUR] = (byte)0x7F;
+
+		colorTable[0][YELLOW_BOMB] = (byte)0xFF;
+		colorTable[1][YELLOW_BOMB] = (byte)0xFC;
+		colorTable[2][YELLOW_BOMB] = (byte)0x00;
+
 		colorTable[0][WHITE] = (byte)0xFF;
 		colorTable[1][WHITE] = (byte)0xFF;
 		colorTable[2][WHITE] = (byte)0xFF;
 
-		colorTable[0][BLACK] = 0x00; //Black
-		colorTable[1][BLACK] = 0x00;
-		colorTable[2][BLACK] = 0x00;
+		colorTable[0][BLACK] = (byte)0x00;
+		colorTable[1][BLACK] = (byte)0x00;
+		colorTable[2][BLACK] = (byte)0x00;
 
-		colorTable[0][RED] = (byte)0xFF; //Red
-		colorTable[1][RED] = 0x00;
-		colorTable[2][RED] = 0x00;
-
-		colorTable[0][GREEN] = 0x00; //Green
-		colorTable[1][GREEN] = (byte)0xFF;
-		colorTable[2][GREEN] = 0x00;
-
-		colorTable[0][BLUE] = 0x00; //Blue
-		colorTable[1][BLUE] = 0x00;
-		colorTable[2][BLUE] = (byte)0xFF;
-
+		colorTable[0][DKGREY_UNKNOWN] = (byte)0xC4;
+		colorTable[1][DKGREY_UNKNOWN] = (byte)0xB7;
+		colorTable[2][DKGREY_UNKNOWN] = (byte)0xA4;
 	}
 
-	public void click(int x, int y) throws MinesException {
+	public boolean click(int x, int y) throws MinesException {
 		try {
 			Robot r = new Robot();
 			r.mouseMove(boardBounds.x + x * tileSize + tileSize / 2, boardBounds.y + y * tileSize + tileSize / 2);
@@ -86,7 +112,7 @@ public class MinesWindow {
 			r.delay(100);
 			r.mouseRelease(InputEvent.BUTTON1_MASK);
 
-			updateBoard();
+			return updateBoard();
 		} catch (AWTException awte) {
 			throw new MinesException("Failed to click cell (" + x + ", " + y + ")", awte);
 		}
@@ -158,7 +184,7 @@ public class MinesWindow {
 			robot.mousePress(InputEvent.BUTTON1_MASK);
 			robot.mouseRelease(InputEvent.BUTTON1_MASK);
 
-			boardBounds = new Rectangle(LEFT_BORDER, (int)(bounds.height * TOP_FRAC), bounds.width - 2 * LEFT_BORDER, (int)(bounds.height * BOTTOM_FRAC) - (int)(bounds.height * TOP_FRAC));
+			boardBounds = new Rectangle(BORDER, (int)(bounds.height * TOP_FRAC), bounds.width - 2 * BORDER, (int)(bounds.height * BOTTOM_FRAC) - (int)(bounds.height * TOP_FRAC));
 			tileSize = boardBounds.width / 30;
 			robot.delay(1000);
 		} catch (AWTException awte) {
@@ -217,7 +243,7 @@ public class MinesWindow {
 		return dstImage;
 	}
 
-	private void updateBoard() throws MinesException {
+	private boolean updateBoard() throws MinesException {
 		try {
 			Rectangle screenBounds = getScreenRect();
 			Robot r = new Robot();
@@ -240,26 +266,54 @@ public class MinesWindow {
 
 								int value = buffer.getElem(yy * tileSize + xx);
 								switch (value) {
-								case RED:
+								case GREY_EMPTY:
+									board[x][y] = 0;
+									break NextGrid;
+
+								case RED_THREE:
 									board[x][y] = 3;
 									break NextGrid;
 
-								case GREEN:
+								case GREEN_TWO:
 									board[x][y] = 2;
 									break NextGrid;
 
-								case BLUE:
+								case BLUE_ONE:
 									board[x][y] = 1;
 									break NextGrid;
+
+								case DKBLUE_FOUR:
+									board[x][y] = 4;
+									break NextGrid;
+
+								case YELLOW_BOMB:
+									board[x][y] = Integer.MAX_VALUE;
+									debug(image);
+									return true;
 								}
 							}
 						}
-					}
 
+					}
 				}
 			}
+			return false;
 		} catch (AWTException awte) {
 			throw new MinesException("Failed updating the board status", awte);
 		}
+	}
+
+	private void debug(BufferedImage image) {
+		final JWindow w = new JWindow();
+		w.setBounds(new Rectangle(0, 0, tileSize, tileSize));
+		JLabel l = new JLabel(new ImageIcon(image));
+		w.add(l);
+		w.setVisible(true);
+		w.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				w.dispose();
+			}
+		});
 	}
 }

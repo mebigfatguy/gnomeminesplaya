@@ -15,7 +15,9 @@ public class GnomeMinesPlaya {
 			int x = 0;
 			int y = 0;
 
-			while (!mw.isFinished()) {
+			boolean bomb = false;
+
+			while (!bomb && !mw.isFinished()) {
 
 				boolean isUnknown = false;
 				while (!isUnknown) {
@@ -24,7 +26,7 @@ public class GnomeMinesPlaya {
 					isUnknown = mw.getBoard()[x][y] == -1;
 				}
 
-				mw.click(x, y);
+				bomb = mw.click(x, y);
 				Thread.sleep(4000);
 			}
 		} catch (MinesException me) {
