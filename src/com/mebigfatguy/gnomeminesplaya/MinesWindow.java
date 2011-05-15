@@ -48,13 +48,14 @@ public class MinesWindow {
 	private static final int GREEN_TWO = 2;
 	private static final int RED_THREE = 3;
 	private static final int DKBLUE_FOUR = 4;
-	private static final int YELLOW_BOMB = 5;
+	private static final int BROWN_FIVE = 5;
 	private static final int CYAN_SIX = 6;
 	private static final int BRICK_FLAG = 7;
-	private static final int WHITE = 8;
-	private static final int BLACK = 9;
-	private static final int DKGREY_UNKNOWN = 10;
-	private static final int NUM_COLORS = 11;
+	private static final int YELLOW_BOMB = 8;
+	private static final int WHITE = 9;
+	private static final int BLACK = 10;
+	private static final int DKGREY_UNKNOWN = 11;
+	private static final int NUM_COLORS = 12;
 
 	private Process minesProcess;
 	private Point topLeft;
@@ -90,14 +91,17 @@ public class MinesWindow {
 		colorTable[1][DKBLUE_FOUR] = (byte)0x00;
 		colorTable[2][DKBLUE_FOUR] = (byte)0x7F;
 
-		colorTable[0][YELLOW_BOMB] = (byte)0xFF;
-		colorTable[1][YELLOW_BOMB] = (byte)0xFC;
-		colorTable[2][YELLOW_BOMB] = (byte)0x00;
+		colorTable[0][DKBLUE_FOUR] = (byte)0x00;
+		colorTable[1][DKBLUE_FOUR] = (byte)0x00;
+		colorTable[2][DKBLUE_FOUR] = (byte)0x7F;
+
+		colorTable[0][BROWN_FIVE] = (byte)0xA0;
+		colorTable[1][BROWN_FIVE] = (byte)0x00;
+		colorTable[2][BROWN_FIVE] = (byte)0x00;
 
 		colorTable[0][CYAN_SIX] = (byte)0x00;
 		colorTable[1][CYAN_SIX] = (byte)0xFF;
 		colorTable[2][CYAN_SIX] = (byte)0xFF;
-
 
 		colorTable[0][BRICK_FLAG] = (byte)0xB7;
 		colorTable[1][BRICK_FLAG] = (byte)0x2C;
