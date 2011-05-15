@@ -123,7 +123,7 @@ public class MinesWindow {
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
 					while (it.hasNext()) {
 						Point neighbor = it.next();
-						if (neighborDemandsFlag(neighbor, loc)) {
+						if (neighborDemandsFlag(neighbor)) {
 							return loc;
 						}
 					}
@@ -138,7 +138,16 @@ public class MinesWindow {
 
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-
+				if (board[x][y] == DKGREY_UNKNOWN) {
+					Point loc = new Point(x, y);
+					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
+					while (it.hasNext()) {
+						Point neighbor = it.next();
+						if (neighborIsSatisfied(neighbor)) {
+							return loc;
+						}
+					}
+				}
 			}
 		}
 
@@ -383,9 +392,9 @@ public class MinesWindow {
 		}
 	}
 
-	private boolean neighborDemandsFlag(Point neighbor, Point loc) {
+	private boolean neighborDemandsFlag(Point neighbor) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if ((neededBombs == GREY_EMPTY) || (neededBombs == DKGREY_UNKNOWN)) {
+		if ((neededBombs == GREY_EMPTY) || (neededBombs == DKGREY_UNKNOWN) || (neededBombs == BRICK_FLAG)) {
 			return false;
 		}
 
@@ -405,6 +414,27 @@ public class MinesWindow {
 		}
 
 		return (neededBombs - flags) == freeSpaces;
+	}
+
+	private boolean neighborIsSatisfied(Point neighbor) {
+		int neededBombs = board[neighbor.x][neighbor.y];
+		if ((neededBombs == GREY_EMPTY) || (neededBombs == DKGREY_UNKNOWN) || (neededBombs == BRICK_FLAG)) {
+			return false;
+		}
+
+		int flags = 0;
+
+		NeighborIterator it = new NeighborIterator(neighbor, LARGE_COLUMNS, LARGE_ROWS);
+
+		while (it.hasNext()) {
+			Point nn = it.next();
+			int color = board[nn.x][nn.y];
+			if (color == BRICK_FLAG) {
+				flags++;
+			}
+		}
+
+		return (neededBombs == flags);
 	}
 
 	private void debug(int x, int y, BufferedImage image) {
