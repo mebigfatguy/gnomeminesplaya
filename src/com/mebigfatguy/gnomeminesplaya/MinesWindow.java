@@ -46,11 +46,12 @@ public class MinesWindow {
 	private static final int DKBLUE_FOUR = 4;
 	private static final int BROWN_FIVE = 5;
 	private static final int CYAN_SIX = 6;
-	private static final int BRICK_FLAG = 7;
-	private static final int YELLOW_BOMB = 8;
-	private static final int BLACK = 9;
-	private static final int DKGREY_UNKNOWN = 10;
-	private static final int NUM_COLORS = 11;
+	private static final int PURPLE_SEVEN = 7;
+	private static final int BRICK_FLAG = 8;
+	private static final int YELLOW_BOMB = 9;
+	private static final int BLACK = 10;
+	private static final int DKGREY_UNKNOWN = 11;
+	private static final int NUM_COLORS = 12;
 
 	private Process minesProcess;
 	private Point topLeft;
@@ -98,6 +99,10 @@ public class MinesWindow {
 		colorTable[1][CYAN_SIX] = (byte)0xFF;
 		colorTable[2][CYAN_SIX] = (byte)0xFF;
 
+		colorTable[0][PURPLE_SEVEN] = (byte)0xA0;
+		colorTable[1][PURPLE_SEVEN] = (byte)0x00;
+		colorTable[2][PURPLE_SEVEN] = (byte)0xA0;
+
 		colorTable[0][BRICK_FLAG] = (byte)0xB7;
 		colorTable[1][BRICK_FLAG] = (byte)0x2C;
 		colorTable[2][BRICK_FLAG] = (byte)0x2C;
@@ -109,6 +114,10 @@ public class MinesWindow {
 		colorTable[0][DKGREY_UNKNOWN] = (byte)0xC4;
 		colorTable[1][DKGREY_UNKNOWN] = (byte)0xB7;
 		colorTable[2][DKGREY_UNKNOWN] = (byte)0xA4;
+	}
+
+	public void terminate() {
+		minesProcess.destroy();
 	}
 
 	public Point findMineLocation() {

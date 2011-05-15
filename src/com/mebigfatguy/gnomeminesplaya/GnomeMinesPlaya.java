@@ -9,27 +9,32 @@ public class GnomeMinesPlaya {
 	public static void main(String[] args) {
 
 		try {
-			MinesWindow mw = new MinesWindow();
+			while (true) {
+				MinesWindow mw = new MinesWindow();
 
-			int x = 0;
-			int y = 0;
+				int x = 0;
+				int y = 0;
 
-			boolean bomb = false;
+				boolean bomb = false;
 
-			while (!bomb && !mw.isFinished()) {
+				while (!bomb && !mw.isFinished()) {
 
-				Point mine = mw.findMineLocation();
-				if (mine != null) {
-					mw.placeMine(mine.x, mine.y);
-				} else {
-					Point move = mw.findSafeMove();
-					if (move != null) {
-						mw.click(move.x, move.y);
+					Point mine = mw.findMineLocation();
+					if (mine != null) {
+						mw.placeMine(mine.x, mine.y);
 					} else {
-						move = mw.findSafestMove();
-						bomb = mw.click(move.x, move.y);
+						Point move = mw.findSafeMove();
+						if (move != null) {
+							mw.click(move.x, move.y);
+						} else {
+							move = mw.findSafestMove();
+							bomb = mw.click(move.x, move.y);
+						}
 					}
 				}
+
+				try { Thread.sleep(10000); } catch (InterruptedException ie) {}
+				mw.terminate();
 			}
 		} catch (MinesException me) {
 			JOptionPane.showMessageDialog(null, me.getMessage());
