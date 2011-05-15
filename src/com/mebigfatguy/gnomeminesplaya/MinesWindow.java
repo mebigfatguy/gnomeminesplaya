@@ -10,24 +10,20 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
-import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
-
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.WindowConstants;
+import java.util.List;
 
 public class MinesWindow {
 
 	private static final int LARGE_COLUMNS = 30;
 	private static final int LARGE_ROWS = 16;
+	private static final int TOTAL_MINES = 99;
 
 	private static final Point SETTINGS_MENU_OFFSET = new Point(90, 20);
 	private static final Point PREFERENCES_OFFSET = new Point(90, 60);
@@ -156,28 +152,43 @@ public class MinesWindow {
 
 	public Point findSafestMove() {
 
-		SecureRandom sr = new SecureRandom();
+		Point bestPoint = null;
+		double bestScore = 0.0;
 
-		int x = sr.nextInt(LARGE_COLUMNS);
-		int y = sr.nextInt(LARGE_ROWS);
+		List<Point> islandPoints = new ArrayList<Point>();
 
-		while (board[x][y] != DKGREY_UNKNOWN) {
-			x = sr.nextInt(LARGE_COLUMNS);
-			y = sr.nextInt(LARGE_ROWS);
+		for (int y = 0; y < LARGE_ROWS; y++) {
+			for (int x = 0; x < LARGE_COLUMNS; x++) {
+				if (board[x][y] == DKGREY_UNKNOWN) {
+					Point loc = new Point(x, y);
+
+					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
+					double totalScore = 1.0;
+					while (it.hasNext()) {
+						Point neighbor = it.next();
+						double score = neighborScore(neighbor);
+						totalScore *= score;
+					}
+
+					if (bestScore == 1.0) {
+						islandPoints.add(loc);
+					} else if (totalScore > bestScore) {
+						bestPoint = new Point(x, y);
+						bestScore = totalScore;
+					}
+				}
+			}
 		}
 
-		return new Point(x, y);
+		if (islandPoints.size() > 0) {
+			double islandOdds = calcIslandOdds();
+			if (islandOdds > bestScore ) {
+				Collections.shuffle(islandPoints);
+				return islandPoints.get(0);
+			}
+		}
 
-		//		Point bestPoint = new Point(0, 0);
-		//		double bestScore = Double.MAX_VALUE;
-		//
-		//		for (int y = 0; y < LARGE_ROWS; y++) {
-		//			for (int x = 0; x < LARGE_COLUMNS; x++) {
-		//
-		//			}
-		//		}
-		//
-		//		return bestPoint;
+		return bestPoint;
 	}
 
 	public boolean placeMine(int x, int y) throws MinesException {
@@ -437,23 +448,50 @@ public class MinesWindow {
 		return (neededBombs == flags);
 	}
 
-	private void debug(int x, int y, BufferedImage image) {
-		try { Thread.sleep(2000); } catch (Exception e) {}
-		final JDialog d = new JDialog();
-		d.setTitle("(" + x + "," + y + ")");
-		JLabel l = new JLabel(new ImageIcon(image));
-		d.add(l);
-		d.pack();
-		d.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				d.dispose();
-				try { Thread.sleep(2000); } catch (Exception ee) {}
+	private double neighborScore(Point neighbor) {
+		int neededBombs = board[neighbor.x][neighbor.y];
+		if ((neededBombs == GREY_EMPTY) || (neededBombs == DKGREY_UNKNOWN) || (neededBombs == BRICK_FLAG)) {
+			return 1.0;
+		}
+
+		double score = 1.0;
+		int flags = 0;
+		int freeSpaces = 0;
+
+		NeighborIterator it = new NeighborIterator(neighbor, LARGE_COLUMNS, LARGE_ROWS);
+
+		while (it.hasNext()) {
+			Point nn = it.next();
+			int color = board[nn.x][nn.y];
+			if (color == BRICK_FLAG) {
+				flags++;
+			} else if (color == DKGREY_UNKNOWN) {
+				freeSpaces++;
 			}
-		});
-		d.setLocationRelativeTo(null);
-		d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		d.setModal(true);
-		d.setVisible(true);
+		}
+
+		if (freeSpaces == 0) {
+			return 1.0;
+		}
+
+		return 1.0 - ((neededBombs - flags) / (double)freeSpaces);
+	}
+
+	private double calcIslandOdds() {
+
+		int freeSpaces = 0;
+		int flags = 0;
+
+		for (int y = 0; y < LARGE_ROWS; y++) {
+			for (int x = 0; x < LARGE_COLUMNS; x++) {
+				if (board[x][y] == DKGREY_UNKNOWN) {
+					freeSpaces++;
+				} else if (board[x][y] == BRICK_FLAG) {
+					flags++;
+				}
+			}
+		}
+
+		return 1.0 - (TOTAL_MINES - flags) / (double)freeSpaces;
 	}
 }

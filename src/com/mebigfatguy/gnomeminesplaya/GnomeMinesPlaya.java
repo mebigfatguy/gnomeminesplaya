@@ -30,11 +30,9 @@ public class GnomeMinesPlaya {
 						bomb = mw.click(move.x, move.y);
 					}
 				}
-				Thread.sleep(4000);
 			}
 		} catch (MinesException me) {
 			JOptionPane.showMessageDialog(null, me.getMessage());
-		} catch (InterruptedException ie) {
 		}
 	}
 }
