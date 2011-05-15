@@ -52,10 +52,9 @@ public class MinesWindow {
 	private static final int CYAN_SIX = 6;
 	private static final int BRICK_FLAG = 7;
 	private static final int YELLOW_BOMB = 8;
-	private static final int WHITE = 9;
-	private static final int BLACK = 10;
-	private static final int DKGREY_UNKNOWN = 11;
-	private static final int NUM_COLORS = 12;
+	private static final int BLACK = 9;
+	private static final int DKGREY_UNKNOWN = 10;
+	private static final int NUM_COLORS = 11;
 
 	private Process minesProcess;
 	private Point topLeft;
@@ -68,7 +67,7 @@ public class MinesWindow {
 		launchMines();
 		setupMines();
 		for (int x = 0; x < LARGE_COLUMNS; x++) {
-			Arrays.fill(board[x], -1);
+			Arrays.fill(board[x], DKGREY_UNKNOWN);
 		}
 
 		colorTable[0][GREY_EMPTY] = (byte)0xF0;
@@ -107,10 +106,6 @@ public class MinesWindow {
 		colorTable[1][BRICK_FLAG] = (byte)0x2C;
 		colorTable[2][BRICK_FLAG] = (byte)0x2C;
 
-		colorTable[0][WHITE] = (byte)0xFF;
-		colorTable[1][WHITE] = (byte)0xFF;
-		colorTable[2][WHITE] = (byte)0xFF;
-
 		colorTable[0][BLACK] = (byte)0x00;
 		colorTable[1][BLACK] = (byte)0x00;
 		colorTable[2][BLACK] = (byte)0x00;
@@ -123,12 +118,14 @@ public class MinesWindow {
 	public Point findMineLocation() {
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				Point loc = new Point(x, y);
-				Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
-				while (it.hasNext()) {
-					Point neighbor = it.next();
-					if (neighborDemandsFlag(neighbor, loc)) {
-						return loc;
+				if (board[x][y] == DKGREY_UNKNOWN) {
+					Point loc = new Point(x, y);
+					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
+					while (it.hasNext()) {
+						Point neighbor = it.next();
+						if (neighborDemandsFlag(neighbor, loc)) {
+							return loc;
+						}
 					}
 				}
 			}
@@ -155,7 +152,7 @@ public class MinesWindow {
 		int x = sr.nextInt(LARGE_COLUMNS);
 		int y = sr.nextInt(LARGE_ROWS);
 
-		while (board[x][y] != -1) {
+		while (board[x][y] != DKGREY_UNKNOWN) {
 			x = sr.nextInt(LARGE_COLUMNS);
 			y = sr.nextInt(LARGE_ROWS);
 		}
@@ -178,9 +175,9 @@ public class MinesWindow {
 		try {
 			Robot r = new Robot();
 			r.mouseMove(boardBounds.x + x * tileSize + tileSize / 2, boardBounds.y + y * tileSize + tileSize / 2);
-			r.mousePress(InputEvent.BUTTON2_MASK);
+			r.mousePress(InputEvent.BUTTON3_MASK);
 			r.delay(100);
-			r.mouseRelease(InputEvent.BUTTON2_MASK);
+			r.mouseRelease(InputEvent.BUTTON3_MASK);
 
 			return updateBoard(x, y);
 		} catch (AWTException awte) {
@@ -209,7 +206,7 @@ public class MinesWindow {
 	public boolean isFinished() {
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				if (board[x][y] == -1) {
+				if (board[x][y] == DKGREY_UNKNOWN) {
 					return false;
 				}
 			}
@@ -338,7 +335,7 @@ public class MinesWindow {
 
 			for (int y = 0; y < LARGE_ROWS; y++) {
 				for (int x = 0; x < LARGE_COLUMNS; x++) {
-					if (board[x][y] == -1) {
+					if (board[x][y] == DKGREY_UNKNOWN) {
 						int tX = boardBounds.x + x * tileSize;
 						int tY = boardBounds.y + y * tileSize;
 
@@ -348,7 +345,7 @@ public class MinesWindow {
 						int[] colorCounts = new int[NUM_COLORS];
 						Arrays.fill(colorCounts, 0);
 
-						int color = -1;
+						int color = DKGREY_UNKNOWN;
 						int maxPixels = -1;
 
 						for (int yy = 0; yy < tileSize; yy++) {
@@ -388,11 +385,26 @@ public class MinesWindow {
 
 	private boolean neighborDemandsFlag(Point neighbor, Point loc) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if (neededBombs <= 0) {
+		if ((neededBombs == GREY_EMPTY) || (neededBombs == DKGREY_UNKNOWN)) {
 			return false;
 		}
 
-		return false;
+		int freeSpaces = 0;
+		int flags = 0;
+
+		NeighborIterator it = new NeighborIterator(neighbor, LARGE_COLUMNS, LARGE_ROWS);
+
+		while (it.hasNext()) {
+			Point nn = it.next();
+			int color = board[nn.x][nn.y];
+			if (color == DKGREY_UNKNOWN) {
+				freeSpaces++;
+			} else if (color == BRICK_FLAG) {
+				flags++;
+			}
+		}
+
+		return (neededBombs - flags) == freeSpaces;
 	}
 
 	private void debug(int x, int y, BufferedImage image) {
