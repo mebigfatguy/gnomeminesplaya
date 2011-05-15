@@ -170,7 +170,7 @@ public class MinesWindow {
 						totalScore *= score;
 					}
 
-					if (bestScore == 1.0) {
+					if (totalScore == 1.0) {
 						islandPoints.add(loc);
 					} else if (totalScore > bestScore) {
 						bestPoint = new Point(x, y);
