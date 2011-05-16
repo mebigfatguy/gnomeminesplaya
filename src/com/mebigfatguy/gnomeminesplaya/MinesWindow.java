@@ -28,11 +28,11 @@ public class MinesWindow {
 	private static final Point SETTINGS_MENU_OFFSET = new Point(90, 20);
 	private static final Point PREFERENCES_OFFSET = new Point(90, 60);
 
-	private static final double LARGE_X_FRAC = 0.42;
-	private static final double LARGE_Y_FRAC = 0.47;
+	private static final int LARGE_X_OFFSET = -100;
+	private static final int LARGE_Y_OFFSET = -38;
 
-	private static final double CLOSE_X_FRAC = 0.60;
-	private static final double CLOSE_Y_FRAC = 0.66;
+	private static final int CLOSE_X_OFFSET = 100;
+	private static final int CLOSE_Y_OFFSET = 170;
 
 	private static final int BORDER = 10;
 
@@ -298,13 +298,13 @@ public class MinesWindow {
 			//Move mouse to Large radio button and click it
 			robot.delay(1000);
 			Rectangle bounds = getScreenRect();
-			robot.mouseMove((int)(bounds.width * LARGE_X_FRAC), (int)(bounds.height * LARGE_Y_FRAC));
+			robot.mouseMove(bounds.x + bounds.width/2 + LARGE_X_OFFSET, bounds.y + bounds.height/2 + LARGE_Y_OFFSET);
 			robot.mousePress(InputEvent.BUTTON1_MASK);
 			robot.mouseRelease(InputEvent.BUTTON1_MASK);
 
 			//Hit the close box
 			robot.delay(1000);
-			robot.mouseMove((int)(bounds.width * CLOSE_X_FRAC), (int)(bounds.height * CLOSE_Y_FRAC));
+			robot.mouseMove(bounds.x + bounds.width/2 + CLOSE_X_OFFSET, bounds.y + bounds.height/2 + CLOSE_Y_OFFSET);
 			robot.delay(2000);
 			robot.mousePress(InputEvent.BUTTON1_MASK);
 			robot.mouseRelease(InputEvent.BUTTON1_MASK);
