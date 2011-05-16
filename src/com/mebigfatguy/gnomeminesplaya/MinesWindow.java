@@ -13,9 +13,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,6 +59,7 @@ public class MinesWindow {
 	private int tileSize;
 	private final int[][] board = new int[30][16];
 	private final byte[][] colorTable = new byte[3][NUM_COLORS];
+	private final SecureRandom random = new SecureRandom();
 
 	public MinesWindow() throws MinesException {
 		launchMines();
@@ -192,8 +193,7 @@ public class MinesWindow {
 		if (islandPoints.size() > 0) {
 			double islandOdds = calcIslandOdds();
 			if (islandOdds > bestScore ) {
-				Collections.shuffle(islandPoints);
-				return islandPoints.get(0);
+				return islandPoints.get(random.nextInt(islandPoints.size()));
 			}
 		}
 
@@ -247,6 +247,7 @@ public class MinesWindow {
 	private void launchMines() throws MinesException {
 		try {
 			Robot r = new Robot();
+			r.delay(1000);
 			Rectangle screenBounds = getScreenRect();
 			BufferedImage origImage = createGrayscaleBitMap(r.createScreenCapture(screenBounds));
 			r.delay(1000);
