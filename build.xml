@@ -1,0 +1,78 @@
+<!--
+/*
+ * gnomeminesplaya - A automated gnome mines player
+ * Copyright 2011 MeBigFatGuy.com
+ * Copyright 2011 Dave Brosius
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0 
+ *    
+ * Unless required by applicable law or agreed to in writing, 
+ * software distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and limitations 
+ * under the License. 
+ */
+ -->
+
+<project name="gnomeminesplaya" default="jar">
+	
+	<property file="build.properties"/>
+	
+	<property name="src.dir" value="${basedir}/src"/>
+	<property name="classes.dir" value="${basedir}/classes"/>
+	<property name="javac.source" value="1.6"/>
+	<property name="javac.target" value="1.6"/>
+	<property name="javac.deprecation" value="on"/>
+	<property name="javac.debug" value="on"/>
+	
+	<property name="gnomeminesplaya.version" value="0.1.0"/>
+	
+	<target name="clean" description="removes all generated collateral">
+		<delete dir="${classes.dir}"/>
+		<delete dir="${basedir}/*.jar"/>
+	</target>
+	
+	<target name="-init" description="prepares repository for a build">
+		<mkdir dir="${classes.dir}"/>
+	</target>
+		
+	<target name="compile" depends="-init" description="compiles java files">
+		<javac srcdir="${src.dir}"
+				destdir="${classes.dir}"
+				source="${javac.source}"
+				target="${javac.target}"
+				deprecation="${javac.deprecation}"
+				debug="${javac.debug}"
+			    includeantruntime="false"/>
+	</target>
+	
+	<target name="jar" depends="compile" description="produces the gnomeminesplaya jar file">
+		<jar destfile="${basedir}/gnomeminesplaya-${gnomeminesplaya.version}.jar">
+			<fileset dir="${classes.dir}">
+				<include name="**/*.class"/>
+			</fileset>
+			<manifest>
+				<attribute name="gnomeminesplaya-version" value="${gnomeminesplaya.version}"/>
+				<attribute name="Main-Class" value="com.mebigfatguy.gnomeminesplaya.GnomeMinesPlaya"/>
+			</manifest>
+		</jar>	
+	</target>
+	
+	<target name="srczip" description="builds the source distribution zip file">
+		<zip destfile="${basedir}/gnomeminesplaya-src-${gnomeminesplaya.version}.zip" 
+			 basedir="${basedir}"
+			 includes="src/**/*.java"/>
+	</target>
+	
+	<target name="build" depends="clean, -init, compile, jar" description="builds the gnomeminesplaya jar"/>
+	
+	<target name="release" depends="build, srczip" description="prepares everything for a release"/>
+
+	<target name="run" depends="jar" description="run the GnomeMinesPlaya">
+		<java jar="${basedir}/gnomeminesplaya-${gnomeminesplaya.version}.jar" fork="true"/>
+	</target>
+</project>
