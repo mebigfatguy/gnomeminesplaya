@@ -9,8 +9,9 @@ public class GnomeMinesPlaya {
 	public static void main(String[] args) {
 
 		try {
+			MinesWindow mw = new MinesWindow();
+
 			while (true) {
-				MinesWindow mw = new MinesWindow();
 
 				int x = 0;
 				int y = 0;
@@ -34,7 +35,7 @@ public class GnomeMinesPlaya {
 				}
 
 				try { Thread.sleep(10000); } catch (InterruptedException ie) {}
-				mw.terminate();
+				mw.restart();
 			}
 		} catch (MinesException me) {
 			JOptionPane.showMessageDialog(null, me.getMessage());

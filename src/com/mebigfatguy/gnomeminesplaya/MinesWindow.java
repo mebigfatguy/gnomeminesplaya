@@ -64,9 +64,7 @@ public class MinesWindow {
 	public MinesWindow() throws MinesException {
 		launchMines();
 		setupMines();
-		for (int x = 0; x < LARGE_COLUMNS; x++) {
-			Arrays.fill(board[x], DKGREY_UNKNOWN);
-		}
+		initializeBoard();
 
 		colorTable[0][GREY_EMPTY] = (byte)0xF0;
 		colorTable[1][GREY_EMPTY] = (byte)0xEC;
@@ -119,6 +117,22 @@ public class MinesWindow {
 
 	public void terminate() {
 		minesProcess.destroy();
+	}
+
+	public void restart() throws MinesException {
+		try {
+			Robot r = new Robot();
+			r.keyPress(KeyEvent.VK_CONTROL);
+			r.keyPress(KeyEvent.VK_N);
+			r.delay(100);
+			r.keyRelease(KeyEvent.VK_N);
+			r.keyRelease(KeyEvent.VK_CONTROL);
+			initializeBoard();
+			r.delay(1000);
+
+		} catch (AWTException awte) {
+			throw new MinesException("Failed restarting game", awte);
+		}
 	}
 
 	public Point findMineLocation() {
@@ -300,6 +314,12 @@ public class MinesWindow {
 			robot.delay(1000);
 		} catch (AWTException awte) {
 			throw new MinesException("Failed interacting with desktop", awte);
+		}
+	}
+
+	private void initializeBoard() {
+		for (int x = 0; x < LARGE_COLUMNS; x++) {
+			Arrays.fill(board[x], DKGREY_UNKNOWN);
 		}
 	}
 
