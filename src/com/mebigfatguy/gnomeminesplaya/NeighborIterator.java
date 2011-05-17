@@ -7,10 +7,12 @@ import java.util.List;
 
 public class NeighborIterator implements Iterator<Point> {
 
-	private final List<Point> neighbors = new ArrayList<Point>();
 	private final Iterator<Point> it;
 
 	public NeighborIterator(Point p, int columns, int rows) {
+
+		List<Point> neighbors = new ArrayList<Point>();
+
 		if (p.y > 0) {
 			for (int n = -1; n < 2; n++) {
 				int x = p.x + n;
