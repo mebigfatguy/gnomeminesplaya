@@ -399,13 +399,13 @@ public class MinesWindow {
 
 								int value = buffer.getElem(yy * tileSize + xx);
 								colorCounts[value]++;
+							}
+						}
 
-								for (int c = BLUE_ONE; c <= BLACK; c++) {
-									if (colorCounts[c] > maxPixels) {
-										maxPixels = colorCounts[c];
-										color = c;
-									}
-								}
+						for (int c = BLUE_ONE; c <= BLACK; c++) {
+							if (colorCounts[c] > maxPixels) {
+								maxPixels = colorCounts[c];
+								color = c;
 							}
 						}
 
