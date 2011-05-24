@@ -545,7 +545,7 @@ public class MinesWindow {
 			Robot r = new Robot();
 			BufferedImage screen = r.createScreenCapture(screenBounds);
 
-			byte colorTable[][] = new byte[3][2];
+			byte colorTable[][] = new byte[3][3];
 
 			colorTable[0][0] = (byte)0xF0;
 			colorTable[1][0] = (byte)0xEB;
@@ -554,6 +554,10 @@ public class MinesWindow {
 			colorTable[0][1] = (byte)0xCD;
 			colorTable[1][1] = (byte)0xC2;
 			colorTable[2][1] = (byte)0xAE;
+
+			colorTable[0][2] = (byte)0xED;
+			colorTable[1][2] = (byte)0x74;
+			colorTable[2][2] = (byte)0x42;
 
 			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
 			BufferedImage image = new BufferedImage(screenBounds.width, screenBounds.height, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
@@ -603,8 +607,5 @@ public class MinesWindow {
 		} catch (AWTException awte) {
 			throw new MinesException("Failed determining board coordinates", awte);
 		}
-
-
-
 	}
 }
