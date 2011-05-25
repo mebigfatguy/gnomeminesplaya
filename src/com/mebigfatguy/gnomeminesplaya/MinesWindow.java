@@ -254,10 +254,6 @@ public class MinesWindow {
 		}
 	}
 
-	public int[][] getBoard() {
-		return board;
-	}
-
 	public boolean isFinished() {
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
