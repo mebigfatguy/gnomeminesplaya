@@ -1,8 +1,15 @@
 GnomeMinesPlaya is a java application that launches and plays the Gnome Mines game.
 
 It uses java.awt.Robot to set up the game and to perform cell selections, and also to take
-screen shots to determine what the state of the board. The board values are determined by processing
+screen shots to determine what the state of the board is. The board values are determined by processing
 the images for each square after actions are taken.
+
+The games plays until it wins or until a bomb is uncovered, at which point it waits for 10 seconds,
+and starts again. It is recommended that you shut down the app in this period as attempting to 
+shutdown at other times is a frustrating game of beating the computer at clicking, which you will
+most likely loose. Since from Java there's no way to determine the front window of other applications,
+it uses Screenshots and image processing to see where the window is, etc, so it isn't very good at
+noticing if you shut the window, or move it to the back.
 
 It currently works with Ubuntu 10.10 and previous, as it appears that the Natty Mines (or perhaps the
 Unity Mines) has changed the default UNKNOWN cell to an orange color. Will need to add support for that.
