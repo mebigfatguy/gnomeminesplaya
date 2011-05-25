@@ -234,7 +234,7 @@ public class MinesWindow {
 			r.delay(100);
 			r.mouseRelease(InputEvent.BUTTON3_MASK);
 
-			return updateBoard(x, y);
+			return updateBoard();
 		} catch (AWTException awte) {
 			throw new MinesException("Failed to place mine flag (" + x + ", " + y + ")", awte);
 		}
@@ -248,7 +248,7 @@ public class MinesWindow {
 			r.delay(100);
 			r.mouseRelease(InputEvent.BUTTON1_MASK);
 
-			return updateBoard(x, y);
+			return updateBoard();
 		} catch (AWTException awte) {
 			throw new MinesException("Failed to click cell (" + x + ", " + y + ")", awte);
 		}
@@ -387,7 +387,7 @@ public class MinesWindow {
 		return dstImage;
 	}
 
-	private boolean updateBoard(int clickX, int clickY) throws MinesException {
+	private boolean updateBoard() throws MinesException {
 		try {
 			Rectangle screenBounds = getScreenRect();
 			Robot r = new Robot();
@@ -497,7 +497,6 @@ public class MinesWindow {
 			return 1.0;
 		}
 
-		double score = 1.0;
 		int flags = 0;
 		int freeSpaces = 0;
 

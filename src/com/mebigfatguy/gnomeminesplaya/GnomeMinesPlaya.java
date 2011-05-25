@@ -30,9 +30,6 @@ public class GnomeMinesPlaya {
 
 			while (true) {
 
-				int x = 0;
-				int y = 0;
-
 				boolean bomb = false;
 
 				while (!bomb && !mw.isFinished()) {
