@@ -69,6 +69,7 @@ public class MinesWindow {
 	private Point topLeft;
 	private Rectangle boardBounds;
 	private int tileSize;
+	private boolean isOrangeUnknowns = false;
 	private final int[][] board = new int[30][16];
 	private final byte[][] colorTable = new byte[3][NUM_COLORS];
 	private final SecureRandom random = new SecureRandom();
@@ -122,9 +123,15 @@ public class MinesWindow {
 		colorTable[1][BLACK] = (byte)0x00;
 		colorTable[2][BLACK] = (byte)0x00;
 
-		colorTable[0][DKGREY_UNKNOWN] = (byte)0xC4;
-		colorTable[1][DKGREY_UNKNOWN] = (byte)0xB7;
-		colorTable[2][DKGREY_UNKNOWN] = (byte)0xA4;
+		if (isOrangeUnknowns) {
+			colorTable[0][DKGREY_UNKNOWN] = (byte)0xED;
+			colorTable[1][DKGREY_UNKNOWN] = (byte)0x74;
+			colorTable[2][DKGREY_UNKNOWN] = (byte)0x42;
+		} else {
+			colorTable[0][DKGREY_UNKNOWN] = (byte)0xC4;
+			colorTable[1][DKGREY_UNKNOWN] = (byte)0xB7;
+			colorTable[2][DKGREY_UNKNOWN] = (byte)0xA4;
+		}
 	}
 
 	public void terminate() {
@@ -538,6 +545,7 @@ public class MinesWindow {
 
 			Rectangle screenBounds = getScreenRect();
 			Robot r = new Robot();
+			r.delay(500);
 			BufferedImage screen = r.createScreenCapture(screenBounds);
 
 			byte colorTable[][] = new byte[3][3];
@@ -557,7 +565,7 @@ public class MinesWindow {
 			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
 			BufferedImage image = new BufferedImage(screenBounds.width, screenBounds.height, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
 
-			image.getGraphics().drawImage(screen, 0, 0, screenBounds.width, screenBounds.height, 0, 0, screenBounds.width, screenBounds.height, null);
+			image.getGraphics().drawImage(screen, 0, 0, screenBounds.width, screenBounds.height, Color.WHITE, null);
 
 			DataBuffer buffer = image.getRaster().getDataBuffer();
 
@@ -582,6 +590,7 @@ public class MinesWindow {
 				color = buffer.getElem(vBitsOffset);
 			}
 
+			isOrangeUnknowns = (color == 2);
 			int top = yOffset;
 
 			yOffset = screenBounds.height - 5;
