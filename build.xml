@@ -48,12 +48,18 @@
 				deprecation="${javac.deprecation}"
 				debug="${javac.debug}"
 			    includeantruntime="false"/>
+		<copy todir="${classes.dir}">
+			<fileset dir="${src.dir}">
+			      <include name="**/*.properties"/>
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="jar" depends="compile" description="produces the gnomeminesplaya jar file">
 		<jar destfile="${basedir}/gnomeminesplaya-${gnomeminesplaya.version}.jar">
 			<fileset dir="${classes.dir}">
-				<include name="**/*.class"/>
+                <include name="**/*.class"/>
+			    <include name="**/*.properties"/>
 			</fileset>
 			<manifest>
 				<attribute name="gnomeminesplaya-version" value="${gnomeminesplaya.version}"/>
