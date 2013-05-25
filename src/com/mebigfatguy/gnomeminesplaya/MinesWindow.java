@@ -30,6 +30,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,76 +54,20 @@ public class MinesWindow {
 	private static final int CLOSE_X_OFFSET = 100;
 	private static final int CLOSE_Y_OFFSET = 170;
 
-	private static final int GREY_UNKNOWN = 0;
-	private static final int BLUE_ONE = 1;
-	private static final int GREEN_TWO = 2;
-	private static final int RED_THREE = 3;
-	private static final int DKBLUE_FOUR = 4;
-	private static final int BROWN_FIVE = 5;
-	private static final int CYAN_SIX = 6;
-	private static final int PURPLE_SEVEN = 7;
-	private static final int BRICK_FLAG = 8;
-	private static final int YELLOW_BOMB = 9;
-	private static final int BLACK = 10;
-	private static final int DKGREY_EMPTY = 11;
-	private static final int NUM_COLORS = 12;
-
 	private Process minesProcess;
 	private Point topLeft;
 	private Rectangle boardBounds;
 	private int tileSize;
 	private final int[][] board = new int[30][16];
-	private final byte[][] colorTable = new byte[3][NUM_COLORS];
+	private byte[][] colorTable;
 	private final SecureRandom random = new SecureRandom();
 
 	public MinesWindow() throws MinesException {
 		launchMines();
 		setupMines();
 		initializeBoard();
-
-		colorTable[0][GREY_UNKNOWN] = (byte)0xF0;
-		colorTable[1][GREY_UNKNOWN] = (byte)0xEC;
-		colorTable[2][GREY_UNKNOWN] = (byte)0xE3;
-
-		colorTable[0][BLUE_ONE] = (byte)0x00;
-		colorTable[1][BLUE_ONE] = (byte)0x00;
-		colorTable[2][BLUE_ONE] = (byte)0xFF;
-
-		colorTable[0][GREEN_TWO] = (byte)0x00;
-		colorTable[1][GREEN_TWO] = (byte)0xA0;
-		colorTable[2][GREEN_TWO] = (byte)0x00;
-
-		colorTable[0][RED_THREE] = (byte)0xFF;
-		colorTable[1][RED_THREE] = (byte)0x00;
-		colorTable[2][RED_THREE] = (byte)0x00;
-
-		colorTable[0][DKBLUE_FOUR] = (byte)0x00;
-		colorTable[1][DKBLUE_FOUR] = (byte)0x00;
-		colorTable[2][DKBLUE_FOUR] = (byte)0x7F;
-
-		colorTable[0][BROWN_FIVE] = (byte)0xA0;
-		colorTable[1][BROWN_FIVE] = (byte)0x00;
-		colorTable[2][BROWN_FIVE] = (byte)0x00;
-
-		colorTable[0][CYAN_SIX] = (byte)0x00;
-		colorTable[1][CYAN_SIX] = (byte)0xFF;
-		colorTable[2][CYAN_SIX] = (byte)0xFF;
-
-		colorTable[0][PURPLE_SEVEN] = (byte)0xA0;
-		colorTable[1][PURPLE_SEVEN] = (byte)0x00;
-		colorTable[2][PURPLE_SEVEN] = (byte)0xA0;
-
-		colorTable[0][BRICK_FLAG] = (byte)0xB7;
-		colorTable[1][BRICK_FLAG] = (byte)0x2C;
-		colorTable[2][BRICK_FLAG] = (byte)0x2C;
-
-		colorTable[0][BLACK] = (byte)0x00;
-		colorTable[1][BLACK] = (byte)0x00;
-		colorTable[2][BLACK] = (byte)0x00;
-
-		colorTable[0][DKGREY_EMPTY] = (byte)0xC4;
-		colorTable[1][DKGREY_EMPTY] = (byte)0xB7;
-		colorTable[2][DKGREY_EMPTY] = (byte)0xA4;
+		
+		loadColorTable();
 	}
 
 	public void terminate() {
@@ -146,7 +93,7 @@ public class MinesWindow {
 	public Point findMineLocation() {
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				if (board[x][y] == GREY_UNKNOWN) {
+				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
 					Point loc = new Point(x, y);
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
 					while (it.hasNext()) {
@@ -166,7 +113,7 @@ public class MinesWindow {
 
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				if (board[x][y] == GREY_UNKNOWN) {
+				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
 					Point loc = new Point(x, y);
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
 					while (it.hasNext()) {
@@ -191,7 +138,7 @@ public class MinesWindow {
 
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				if (board[x][y] == GREY_UNKNOWN) {
+				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
 					Point loc = new Point(x, y);
 
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
@@ -257,13 +204,28 @@ public class MinesWindow {
 	public boolean isFinished() {
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				if (board[x][y] == GREY_UNKNOWN) {
+				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
 					return false;
 				}
 			}
 		}
 
 		return true;
+	}
+	
+	private void loadColorTable() {
+	    
+	    InputStream is = null;
+	    
+	    try {
+	        is = new BufferedInputStream(MinesWindow.class.getResourceAsStream("/com/mebigfatguy/gnomeminesplaya/colors.properties"));
+	        MinesColors.loadColors(is);
+	    } catch (IOException ioe) {
+	        ioe.printStackTrace();
+	    } finally {
+	        Closer.close(is);
+	        colorTable = MinesColors.getColorTable();
+	    }
 	}
 
 	private void launchMines() throws MinesException {
@@ -328,7 +290,7 @@ public class MinesWindow {
 
 	private void initializeBoard() {
 		for (int x = 0; x < LARGE_COLUMNS; x++) {
-			Arrays.fill(board[x], GREY_UNKNOWN);
+			Arrays.fill(board[x], MinesColors.UNKNOWN.ordinal());
 		}
 	}
 
@@ -389,19 +351,13 @@ public class MinesWindow {
 			Robot r = new Robot();
 			BufferedImage screen = r.createScreenCapture(screenBounds);
 
-//            try {
-//                ImageIO.write(screen, "png", new File("/home/dave/.gmp/screen.png"));
-//            } catch (IOException ioe) {
-//                throw new MinesException(ioe.getMessage(), ioe);
-//            }
-
 			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
 			BufferedImage image = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
-            int[] colorCounts = new int[NUM_COLORS];
+            int[] colorCounts = new int[MinesColors.values().length];
 
 			for (int y = 0; y < LARGE_ROWS; y++) {
 				for (int x = 0; x < LARGE_COLUMNS; x++) {
-					if (board[x][y] == GREY_UNKNOWN) {
+					if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
 						int tX = boardBounds.x + x * tileSize;
 						int tY = boardBounds.y + y * tileSize;
 
@@ -410,7 +366,7 @@ public class MinesWindow {
 
 						Arrays.fill(colorCounts, 0);
 
-						int color = GREY_UNKNOWN;
+						int color = MinesColors.UNKNOWN.ordinal();
 						int maxPixels = -1;
 
 						for (int yy = 3; yy < tileSize-3; yy++) {
@@ -421,7 +377,7 @@ public class MinesWindow {
 							}
 						}
 
-						for (int c = BLUE_ONE; c <= BLACK; c++) {
+						for (int c = MinesColors.ONE.ordinal(); c <= MinesColors.BLACK.ordinal(); c++) {
 							if (colorCounts[c] > maxPixels) {
 								maxPixels = colorCounts[c];
 								color = c;
@@ -429,14 +385,14 @@ public class MinesWindow {
 						}
 
 						if (maxPixels > 0) {
-							if ((color == BLACK) || (color == YELLOW_BOMB)) {
+							if ((color == MinesColors.BLACK.ordinal()) || (color == MinesColors.BOMB.ordinal())) {
 								board[x][y] = Integer.MAX_VALUE;
 								return true;
 							} else {
 								board[x][y] = color;
 							}
-						} else if (colorCounts[DKGREY_EMPTY] > colorCounts[GREY_UNKNOWN]) {
-							board[x][y] = DKGREY_EMPTY;
+						} else if (colorCounts[MinesColors.EMPTY.ordinal()] > colorCounts[MinesColors.UNKNOWN.ordinal()]) {
+							board[x][y] = MinesColors.EMPTY.ordinal();
 						}
 
 					}
@@ -450,7 +406,7 @@ public class MinesWindow {
 
 	private boolean neighborDemandsFlag(Point neighbor) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if ((neededBombs == GREY_UNKNOWN) || (neededBombs == DKGREY_EMPTY) || (neededBombs == BRICK_FLAG)) {
+		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.BRICK.ordinal())) {
 			return false;
 		}
 
@@ -462,9 +418,9 @@ public class MinesWindow {
 		while (it.hasNext()) {
 			Point nn = it.next();
 			int color = board[nn.x][nn.y];
-			if (color == GREY_UNKNOWN) {
+			if (color == MinesColors.UNKNOWN.ordinal()) {
 				unknownSpaces++;
-			} else if (color == BRICK_FLAG) {
+			} else if (color == MinesColors.BRICK.ordinal()) {
 				flags++;
 			}
 		}
@@ -474,7 +430,7 @@ public class MinesWindow {
 
 	private boolean neighborIsSatisfied(Point neighbor) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if ((neededBombs == GREY_UNKNOWN) || (neededBombs == DKGREY_EMPTY) || (neededBombs == BRICK_FLAG)) {
+		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.BRICK.ordinal())) {
 			return false;
 		}
 
@@ -485,7 +441,7 @@ public class MinesWindow {
 		while (it.hasNext()) {
 			Point nn = it.next();
 			int color = board[nn.x][nn.y];
-			if (color == BRICK_FLAG) {
+			if (color == MinesColors.BRICK.ordinal()) {
 				flags++;
 			}
 		}
@@ -495,7 +451,7 @@ public class MinesWindow {
 
 	private double neighborScore(Point neighbor) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if ((neededBombs == GREY_UNKNOWN) || (neededBombs == DKGREY_EMPTY) || (neededBombs == BRICK_FLAG)) {
+		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.BRICK.ordinal())) {
 			return 1.0;
 		}
 
@@ -507,9 +463,9 @@ public class MinesWindow {
 		while (it.hasNext()) {
 			Point nn = it.next();
 			int color = board[nn.x][nn.y];
-			if (color == BRICK_FLAG) {
+			if (color == MinesColors.BRICK.ordinal()) {
 				flags++;
-			} else if (color == GREY_UNKNOWN) {
+			} else if (color == MinesColors.UNKNOWN.ordinal()) {
 				unknownSpaces++;
 			}
 		}
@@ -528,9 +484,9 @@ public class MinesWindow {
 
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
-				if (board[x][y] == GREY_UNKNOWN) {
+				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
 					unknownSpaces++;
-				} else if (board[x][y] == BRICK_FLAG) {
+				} else if (board[x][y] == MinesColors.BRICK.ordinal()) {
 					flags++;
 				}
 			}
