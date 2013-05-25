@@ -98,10 +98,6 @@ public class MinesWindow {
 		colorTable[1][DKBLUE_FOUR] = (byte)0x00;
 		colorTable[2][DKBLUE_FOUR] = (byte)0x7F;
 
-		colorTable[0][DKBLUE_FOUR] = (byte)0x00;
-		colorTable[1][DKBLUE_FOUR] = (byte)0x00;
-		colorTable[2][DKBLUE_FOUR] = (byte)0x7F;
-
 		colorTable[0][BROWN_FIVE] = (byte)0xA0;
 		colorTable[1][BROWN_FIVE] = (byte)0x00;
 		colorTable[2][BROWN_FIVE] = (byte)0x00;
