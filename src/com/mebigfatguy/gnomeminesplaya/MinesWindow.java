@@ -60,7 +60,6 @@ public class MinesWindow {
 	private int tileSize;
 	private final int[][] board = new int[30][16];
 	private byte[][] colorTable;
-	private int currentFlagCount = 0;
 	private final SecureRandom random = new SecureRandom();
 
 	public MinesWindow() throws MinesException {
@@ -330,7 +329,6 @@ public class MinesWindow {
 		for (int x = 0; x < LARGE_COLUMNS; x++) {
 			Arrays.fill(board[x], MinesColors.UNKNOWN.ordinal());
 		}
-        currentFlagCount = 0;
 	}
 
 	private Rectangle getScreenRect() {
@@ -393,6 +391,7 @@ public class MinesWindow {
 			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
 			BufferedImage image = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
             int[] colorCounts = new int[MinesColors.values().length];
+            int curFlagCount = 0;
 
 			for (int y = 0; y < LARGE_ROWS; y++) {
 				for (int x = 0; x < LARGE_COLUMNS; x++) {
@@ -406,7 +405,6 @@ public class MinesWindow {
 						Arrays.fill(colorCounts, 0);
 
 						int color = MinesColors.UNKNOWN.ordinal();
-						int maxPixels = -1;
 
 						for (int yy = 3; yy < tileSize-3; yy++) {
 							for (int xx = 3; xx < tileSize-3; xx++) {
@@ -416,20 +414,23 @@ public class MinesWindow {
 							}
 						}
 
+                        int maxPixels = -1;
 						for (int c = MinesColors.ONE.ordinal(); c <= MinesColors.BLACK.ordinal(); c++) {
 							if (colorCounts[c] > maxPixels) {
 								maxPixels = colorCounts[c];
 								color = c;
 							}
 						}
-						currentFlagCount = colorCounts[MinesColors.BRICK.ordinal()];
-
+						
 						if (maxPixels > 0) {
 							if ((color == MinesColors.BLACK.ordinal()) || (color == MinesColors.BOMB.ordinal())) {
 								board[x][y] = Integer.MAX_VALUE;
 								return true;
 							} else {
 								board[x][y] = color;
+								if (color == MinesColors.BRICK.ordinal()) {
+								    curFlagCount++;
+								}
 							}
 						} else if (colorCounts[MinesColors.EMPTY.ordinal()] > colorCounts[MinesColors.UNKNOWN.ordinal()]) {
 							board[x][y] = MinesColors.EMPTY.ordinal();
@@ -438,6 +439,7 @@ public class MinesWindow {
 					}
 				}
 			}
+            
 			return false;
 		} catch (AWTException awte) {
 			throw new MinesException("Failed updating the board status", awte);
@@ -536,20 +538,12 @@ public class MinesWindow {
 	}
 	
 	public boolean userWantsTermination() {
-	    int flags = 0;
-       for (int y = 0; y < LARGE_ROWS; y++) {
-            for (int x = 0; x < LARGE_COLUMNS; x++) {
-                if (board[x][y] == MinesColors.BRICK.ordinal()) {
-                    flags++;
-                }
-            }
-        }
-       
-       if ((currentFlagCount > 0) && (flags < currentFlagCount)) {
-           return true;
-       }
-       currentFlagCount = flags;
-       return false;
+	    try {
+	        minesProcess.exitValue();
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
 	}
 
 	private void calculateBoardBounds() throws MinesException {
