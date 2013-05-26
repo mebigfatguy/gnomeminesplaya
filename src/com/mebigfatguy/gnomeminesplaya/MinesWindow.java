@@ -428,7 +428,7 @@ public class MinesWindow {
 								return true;
 							} else {
 								board[x][y] = color;
-								if (color == MinesColors.BRICK.ordinal()) {
+								if (color == MinesColors.FLAG.ordinal()) {
 								    curFlagCount++;
 								}
 							}
@@ -448,7 +448,7 @@ public class MinesWindow {
 
 	private boolean neighborDemandsFlag(Point neighbor) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.BRICK.ordinal())) {
+		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.FLAG.ordinal())) {
 			return false;
 		}
 
@@ -462,7 +462,7 @@ public class MinesWindow {
 			int color = board[nn.x][nn.y];
 			if (color == MinesColors.UNKNOWN.ordinal()) {
 				unknownSpaces++;
-			} else if (color == MinesColors.BRICK.ordinal()) {
+			} else if (color == MinesColors.FLAG.ordinal()) {
 				flags++;
 			}
 		}
@@ -472,7 +472,7 @@ public class MinesWindow {
 
 	private boolean neighborIsSatisfied(Point neighbor) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.BRICK.ordinal())) {
+		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.FLAG.ordinal())) {
 			return false;
 		}
 
@@ -483,7 +483,7 @@ public class MinesWindow {
 		while (it.hasNext()) {
 			Point nn = it.next();
 			int color = board[nn.x][nn.y];
-			if (color == MinesColors.BRICK.ordinal()) {
+			if (color == MinesColors.FLAG.ordinal()) {
 				flags++;
 			}
 		}
@@ -493,7 +493,7 @@ public class MinesWindow {
 
 	private double neighborScore(Point neighbor) {
 		int neededBombs = board[neighbor.x][neighbor.y];
-		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.BRICK.ordinal())) {
+		if ((neededBombs == MinesColors.UNKNOWN.ordinal()) || (neededBombs == MinesColors.EMPTY.ordinal()) || (neededBombs == MinesColors.FLAG.ordinal())) {
 			return 1.0;
 		}
 
@@ -505,7 +505,7 @@ public class MinesWindow {
 		while (it.hasNext()) {
 			Point nn = it.next();
 			int color = board[nn.x][nn.y];
-			if (color == MinesColors.BRICK.ordinal()) {
+			if (color == MinesColors.FLAG.ordinal()) {
 				flags++;
 			} else if (color == MinesColors.UNKNOWN.ordinal()) {
 				unknownSpaces++;
@@ -528,7 +528,7 @@ public class MinesWindow {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
 				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
 					unknownSpaces++;
-				} else if (board[x][y] == MinesColors.BRICK.ordinal()) {
+				} else if (board[x][y] == MinesColors.FLAG.ordinal()) {
 					flags++;
 				}
 			}

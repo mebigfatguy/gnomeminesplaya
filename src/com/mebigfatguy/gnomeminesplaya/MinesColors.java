@@ -32,7 +32,7 @@ public enum MinesColors {
     FIVE("#A00000"),
     SIX("#00FFFF"),
     SEVEN("#A000A0"),
-    BRICK("#B72C2C"),
+    FLAG("#B72C2C"),
     BLACK("#000000"),
     BOMB("#FFFC00"),
     EMPTY("#C4B7A4");
