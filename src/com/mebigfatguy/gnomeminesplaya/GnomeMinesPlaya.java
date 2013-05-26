@@ -32,7 +32,7 @@ public class GnomeMinesPlaya {
 
 				boolean bomb = false;
 
-				while (!bomb && !mw.isFinished()) {
+				while (!bomb && !mw.isFinished() && !mw.userWantsTermination()) {
 
 					Point mine = mw.findMineLocation();
 					if (mine != null) {
@@ -50,6 +50,9 @@ public class GnomeMinesPlaya {
 				
 				if (mw.isFinished()) {
 				    mw.win();
+				} else if (mw.userWantsTermination()) {
+				    mw.terminate();
+				    System.exit(0);
 				}
 
 				try { Thread.sleep(10000); } catch (InterruptedException ie) {}

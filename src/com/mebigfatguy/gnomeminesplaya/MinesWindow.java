@@ -422,6 +422,7 @@ public class MinesWindow {
 								color = c;
 							}
 						}
+						currentFlagCount = colorCounts[MinesColors.BRICK.ordinal()];
 
 						if (maxPixels > 0) {
 							if ((color == MinesColors.BLACK.ordinal()) || (color == MinesColors.BOMB.ordinal())) {
