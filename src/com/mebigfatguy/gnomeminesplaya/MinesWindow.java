@@ -60,6 +60,7 @@ public class MinesWindow {
 	private int tileSize;
 	private final int[][] board = new int[30][16];
 	private byte[][] colorTable;
+	private int currentFlagCount = 0;
 	private final SecureRandom random = new SecureRandom();
 
 	public MinesWindow() throws MinesException {
@@ -173,9 +174,7 @@ public class MinesWindow {
 		try {
 			Robot r = new Robot();
 			r.mouseMove(boardBounds.x + x * tileSize + tileSize / 2, boardBounds.y + y * tileSize + tileSize / 2);
-			r.mousePress(InputEvent.BUTTON3_MASK);
-			r.delay(100);
-			r.mouseRelease(InputEvent.BUTTON3_MASK);
+			click(r, InputEvent.BUTTON3_MASK);
 			
 			r.delay(500);
 
@@ -189,9 +188,7 @@ public class MinesWindow {
 		try {
 			Robot r = new Robot();
 			r.mouseMove(boardBounds.x + x * tileSize + tileSize / 2, boardBounds.y + y * tileSize + tileSize / 2);
-			r.mousePress(InputEvent.BUTTON1_MASK);
-			r.delay(100);
-			r.mouseRelease(InputEvent.BUTTON1_MASK);
+			click(r, InputEvent.BUTTON1_MASK);
 			
 			r.delay(500);
 
@@ -211,6 +208,47 @@ public class MinesWindow {
 		}
 
 		return true;
+	}
+	
+	public void win() throws MinesException {
+	    try {
+            Robot r = new Robot();
+            r.delay(1000);
+            type(r, KeyEvent.VK_G);
+            type(r, KeyEvent.VK_N);
+            type(r, KeyEvent.VK_O);
+            type(r, KeyEvent.VK_M);
+            type(r, KeyEvent.VK_E);
+            type(r, KeyEvent.VK_M);
+            type(r, KeyEvent.VK_I);
+            type(r, KeyEvent.VK_N);
+            type(r, KeyEvent.VK_E);
+            type(r, KeyEvent.VK_S);
+            type(r, KeyEvent.VK_P);
+            type(r, KeyEvent.VK_L);
+            type(r, KeyEvent.VK_A);
+            type(r, KeyEvent.VK_Y);
+            type(r, KeyEvent.VK_A);
+            type(r, KeyEvent.VK_ENTER);
+            r.delay(1000);
+            type(r, KeyEvent.VK_ESCAPE);
+	    } catch (AWTException awte) {
+            throw new MinesException("Failed to enter high score name", awte);
+        }
+	}
+	
+	private void type(Robot r, int key) {
+	    r.keyPress(key);
+        r.delay(10);
+        r.keyRelease(key);
+        r.delay(10);
+	}
+	
+	private void click(Robot r, int mask) {
+        r.mousePress(mask);
+        r.delay(100);
+        r.mouseRelease(mask);
+        r.delay(50);
 	}
 	
 	private void loadColorTable() {
@@ -247,6 +285,7 @@ public class MinesWindow {
 
 	private void setupMines() throws MinesException {
 		try {
+		    
 			Robot robot = new Robot();
 
 			if ((topLeft.x != 0) || (topLeft.y != 0)) {
@@ -261,23 +300,22 @@ public class MinesWindow {
 			topLeft.y = 0;
 			robot.mouseMove(SETTINGS_MENU_OFFSET.x, SETTINGS_MENU_OFFSET.y);
 			robot.mousePress(InputEvent.BUTTON1_MASK);
-			robot.mouseMove(PREFERENCES_OFFSET.x, PREFERENCES_OFFSET.y);
 			robot.delay(100);
-			robot.mouseRelease(InputEvent.BUTTON1_MASK);
+            robot.mouseMove(PREFERENCES_OFFSET.x, PREFERENCES_OFFSET.y);
+            robot.delay(100);
+            robot.mouseRelease(InputEvent.BUTTON1_MASK);
 
 			//Move mouse to Large radio button and click it
 			robot.delay(1000);
 			Rectangle bounds = getScreenRect();
 			robot.mouseMove(bounds.x + bounds.width/2 + LARGE_X_OFFSET, bounds.y + bounds.height/2 + LARGE_Y_OFFSET);
-			robot.mousePress(InputEvent.BUTTON1_MASK);
-			robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			click(robot, InputEvent.BUTTON1_MASK);
 
 			//Hit the close box
 			robot.delay(1000);
 			robot.mouseMove(bounds.x + bounds.width/2 + CLOSE_X_OFFSET, bounds.y + bounds.height/2 + CLOSE_Y_OFFSET);
 			robot.delay(2000);
-			robot.mousePress(InputEvent.BUTTON1_MASK);
-			robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			click(robot, InputEvent.BUTTON1_MASK);
 
 			calculateBoardBounds();
 
@@ -292,6 +330,7 @@ public class MinesWindow {
 		for (int x = 0; x < LARGE_COLUMNS; x++) {
 			Arrays.fill(board[x], MinesColors.UNKNOWN.ordinal());
 		}
+        currentFlagCount = 0;
 	}
 
 	private Rectangle getScreenRect() {
@@ -493,6 +532,23 @@ public class MinesWindow {
 		}
 
 		return 1.0 - (TOTAL_MINES - flags) / (double)unknownSpaces;
+	}
+	
+	public boolean userWantsTermination() {
+	    int flags = 0;
+       for (int y = 0; y < LARGE_ROWS; y++) {
+            for (int x = 0; x < LARGE_COLUMNS; x++) {
+                if (board[x][y] == MinesColors.BRICK.ordinal()) {
+                    flags++;
+                }
+            }
+        }
+       
+       if ((currentFlagCount > 0) && (flags < currentFlagCount)) {
+           return true;
+       }
+       currentFlagCount = flags;
+       return false;
 	}
 
 	private void calculateBoardBounds() throws MinesException {

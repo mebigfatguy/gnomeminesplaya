@@ -47,6 +47,10 @@ public class GnomeMinesPlaya {
 						}
 					}
 				}
+				
+				if (mw.isFinished()) {
+				    mw.win();
+				}
 
 				try { Thread.sleep(10000); } catch (InterruptedException ie) {}
 				mw.restart();
