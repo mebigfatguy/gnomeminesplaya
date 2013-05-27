@@ -140,12 +140,10 @@ public class MinesWindow {
 
 		List<Point> islandPoints = new ArrayList<Point>();
 
-		Point loc = new Point();
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
 				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
-					loc.x = x;
-					loc.y = y;
+			        Point loc = new Point(x, y);
 
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
 					double totalScore = 1.0;
@@ -169,7 +167,15 @@ public class MinesWindow {
 		if (islandPoints.size() > 0) {
 			double islandOdds = calcIslandOdds();
 			if (islandOdds > bestScore ) {
-				return islandPoints.get(random.nextInt(islandPoints.size()));
+			    Point firstIsland = islandPoints.remove(random.nextInt(islandPoints.size()));
+			    Point island = firstIsland;
+			    while (islandPoints.size() > 0) {
+			        if ((island.x > 0) && (island.x < (LARGE_COLUMNS-1)) && (island.y > 0) && (island.y < (LARGE_ROWS-1))) {
+			            return island;
+			        }
+			        island = islandPoints.remove(random.nextInt(islandPoints.size()));
+			    }
+			    return firstIsland;
 			}
 		}
 
