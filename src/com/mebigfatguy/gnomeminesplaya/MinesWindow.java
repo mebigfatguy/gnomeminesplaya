@@ -91,10 +91,12 @@ public class MinesWindow {
 	}
 
 	public Point findMineLocation() {
+	    Point loc = new Point();
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
 				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
-					Point loc = new Point(x, y);
+					loc.x = x;
+					loc.y = y;
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
 					while (it.hasNext()) {
 						Point neighbor = it.next();
@@ -111,10 +113,12 @@ public class MinesWindow {
 
 	public Point findSafeMove() {
 
+	    Point loc = new Point();
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
 				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
-					Point loc = new Point(x, y);
+					loc.x = x;
+					loc.y = y;
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
 					while (it.hasNext()) {
 						Point neighbor = it.next();
@@ -131,15 +135,17 @@ public class MinesWindow {
 
 	public Point findSafestMove() {
 
-		Point bestPoint = null;
+		Point bestPoint = new Point();
 		double bestScore = 0.0;
 
 		List<Point> islandPoints = new ArrayList<Point>();
 
+		Point loc = new Point();
 		for (int y = 0; y < LARGE_ROWS; y++) {
 			for (int x = 0; x < LARGE_COLUMNS; x++) {
 				if (board[x][y] == MinesColors.UNKNOWN.ordinal()) {
-					Point loc = new Point(x, y);
+					loc.x = x;
+					loc.y = y;
 
 					Iterator<Point> it = new NeighborIterator(loc, LARGE_COLUMNS, LARGE_ROWS);
 					double totalScore = 1.0;
@@ -152,7 +158,8 @@ public class MinesWindow {
 					if (totalScore == 1.0) {
 						islandPoints.add(loc);
 					} else if (totalScore > bestScore) {
-						bestPoint = new Point(x, y);
+						bestPoint.x = x;
+						bestPoint.y = y;
 						bestScore = totalScore;
 					}
 				}
