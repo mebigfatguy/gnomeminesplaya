@@ -398,7 +398,6 @@ public class MinesWindow {
 			IndexColorModel colorModel = new IndexColorModel(8, colorTable[0].length, colorTable[0], colorTable[1], colorTable[2]);
 			BufferedImage image = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_BYTE_INDEXED, colorModel);
             int[] colorCounts = new int[MinesColors.values().length];
-            int curFlagCount = 0;
 
 			for (int y = 0; y < LARGE_ROWS; y++) {
 				for (int x = 0; x < LARGE_COLUMNS; x++) {
@@ -435,9 +434,6 @@ public class MinesWindow {
 								return true;
 							} else {
 								board[x][y] = color;
-								if (color == MinesColors.FLAG.ordinal()) {
-								    curFlagCount++;
-								}
 							}
 						} else if (colorCounts[MinesColors.EMPTY.ordinal()] > colorCounts[MinesColors.UNKNOWN.ordinal()]) {
 							board[x][y] = MinesColors.EMPTY.ordinal();
