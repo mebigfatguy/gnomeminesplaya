@@ -1,4 +1,6 @@
 classes
+javadoc
+target
 *.jar
 *.zip
 

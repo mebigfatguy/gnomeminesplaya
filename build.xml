@@ -23,16 +23,27 @@
 	<property file="build.properties"/>
 	
 	<property name="src.dir" value="${basedir}/src"/>
-	<property name="classes.dir" value="${basedir}/classes"/>
+    <property name="classes.dir" value="${basedir}/classes"/>
+    <property name="javadoc.dir" value="${basedir}/javadoc"/>
+	<property name="target.dir" value="${basedir}/target"/>
 	<property name="javac.source" value="1.6"/>
 	<property name="javac.target" value="1.6"/>
 	<property name="javac.deprecation" value="on"/>
 	<property name="javac.debug" value="on"/>
 	
-	<property name="gnomeminesplaya.version" value="0.1.0"/>
+	<property name="gnomeminesplaya.version" value="0.2.0"/>
+	
+	<property name="sonatype.dir" value="${user.home}/.gnomeminesplaya-${gnomeminesplaya.version}-sonatype" />
+	
+   <path id="gnomeminesplaya.classpath">
+    <pathelement location="${classes.dir}/"/>
+    <pathelement location="${target.dir}/"/>
+    </path>
 	
 	<target name="clean" description="removes all generated collateral">
 		<delete dir="${classes.dir}"/>
+        <delete dir="${javadoc.dir}"/>
+	    <delete dir="${target.dir}"/>
 		<delete dir="${basedir}/*.jar"/>
 	</target>
 	
@@ -56,7 +67,7 @@
 	</target>
 	
 	<target name="jar" depends="compile" description="produces the gnomeminesplaya jar file">
-		<jar destfile="${basedir}/gnomeminesplaya-${gnomeminesplaya.version}.jar">
+		<jar destfile="${target.dir}/gnomeminesplaya-${gnomeminesplaya.version}.jar">
 			<fileset dir="${classes.dir}">
                 <include name="**/*.class"/>
 			    <include name="**/*.properties"/>
@@ -69,14 +80,60 @@
 	</target>
 	
 	<target name="srczip" description="builds the source distribution zip file">
-		<zip destfile="${basedir}/gnomeminesplaya-src-${gnomeminesplaya.version}.zip" 
+		<zip destfile="${target.dir}/gnomeminesplaya-${gnomeminesplaya.version}-sources.jar" 
 			 basedir="${basedir}"
-			 includes="src/**/*.java"/>
+			 includes="src/**/*.java,src/**/*.properties,build.xml,README"/>
 	</target>
+	
+   <target name="javadoc" depends="-init" description="build the javadoc for the project">
+        <javadoc packagenames="com.mebigfatguy.*"
+                 sourcepath="${src.dir}"
+                 classpathref="gnomeminesplaya.classpath"
+                 destdir="${javadoc.dir}"
+                 windowtitle="gnomeminesplaya api">
+            <doctitle><![CDATA[<h1>gnomeminesplaya javadoc</h1>]]></doctitle>
+            <bottom><![CDATA[<i>Copyright &#169; 2011-2013 MeBigFatGuy.com. All Rights Reserved.</i>]]></bottom>
+        </javadoc>
+    </target>
 	
 	<target name="build" depends="clean, -init, compile, jar" description="builds the gnomeminesplaya jar"/>
 	
-	<target name="release" depends="build, srczip" description="prepares everything for a release"/>
+	<target name="release" depends="build, srczip, javadoc" description="prepares everything for a release"/>
+
+    <target name="sonatype" depends="release" description="prepare an artifact bundle for sonatype">
+        <mkdir dir="${sonatype.dir}"/>
+        <copy todir="${sonatype.dir}" file="${target.dir}/gnomeminesplaya-${gnomeminesplaya.version}.jar"/>
+        <copy tofile="${sonatype.dir}/gnomeminesplaya-${gnomeminesplaya.version}-sources.jar" file="${target.dir}/gnomeminesplaya-${gnomeminesplaya.version}-sources.jar"/>
+        <jar destfile="${sonatype.dir}/gnomeminesplaya-${gnomeminesplaya.version}-javadoc.jar" basedir="${basedir}" includes="javadoc/**"/>
+        <copy tofile="${sonatype.dir}/gnomeminesplaya-${gnomeminesplaya.version}.pom" file="${basedir}/pom.xml"/>
+        
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/gnomeminesplaya-${gnomeminesplaya.version}.jar" />
+        </exec>
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/gnomeminesplaya-${gnomeminesplaya.version}.pom" />
+        </exec>
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/gnomeminesplaya-${gnomeminesplaya.version}-sources.jar" />
+        </exec>        
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/gnomeminesplaya-${gnomeminesplaya.version}-javadoc.jar" />
+        </exec>
+        <jar destfile="${sonatype.dir}/bundle.jar" basedir="${sonatype.dir}" includes="gnomeminesplaya*">
+        </jar>
+        <echo message="" />
+        <echo message="" />
+        <echo message="====================================================================================================================================" />
+        <echo message="sonatype update bundle produced at ${sonatype.dir}/bundle.jar" />
+        <echo message="upload this jar at https://oss.sonatype.org" />
+        <echo message="" />
+        <echo message="see link for details-> https://docs.sonatype.org/display/Repository/Uploading+3rd-party+Artifacts+to+The+Central+Repository" />
+        <echo message="====================================================================================================================================" />
+    </target>
 
 	<target name="run" depends="jar" description="run the GnomeMinesPlaya">
 		<java jar="${basedir}/gnomeminesplaya-${gnomeminesplaya.version}.jar" fork="true"/>
