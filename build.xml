@@ -23,9 +23,9 @@
 	<property file="build.properties"/>
 	
 	<property name="src.dir" value="${basedir}/src"/>
-    <property name="classes.dir" value="${basedir}/classes"/>
     <property name="javadoc.dir" value="${basedir}/javadoc"/>
 	<property name="target.dir" value="${basedir}/target"/>
+    <property name="classes.dir" value="${target.dir}/classes"/>
 	<property name="javac.source" value="1.6"/>
 	<property name="javac.target" value="1.6"/>
 	<property name="javac.deprecation" value="on"/>
