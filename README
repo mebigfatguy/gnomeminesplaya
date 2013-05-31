@@ -2,11 +2,11 @@ GnomeMinesPlaya is a java application that launches and plays the Gnome Mines ga
 
 It uses java.awt.Robot to set up the game and to perform cell selections, and also to take screen shots to determine what the state of the board is. The board values are determined by processing the images for each square after actions are taken.
 
-The games plays until it wins or until a bomb is uncovered, at which point it waits for 10 seconds, and starts again. Since from Java there's no way to determine the front window of other applications, it uses Screenshots and image processing to see where the window is, etc, so it isn't very good at noticing if you shut the window, or move it to the back.
+The games plays until it wins or until a bomb is uncovered, at which point it waits for 10 seconds, and starts again. Since from Java there's no way to determine the front window of other applications, it uses Screenshots and image processing to see where the window is, etc, so it isn't very good at noticing if you resize the window, or move it to the back.
 
-To quit GnomeMinesPlaya the recommended thing to do is to type ctrl-q on the mines window, and the playa will notice the application quit, and will quit itself.
+To quit GnomeMinesPlaya the recommended thing to do is to type ctrl-q on the mines window, and the playa will notice the application quit, and will quit itself. Don't even bother to try to close with your mouse, as the playa always wins that game!
 
-It currently works with Ubuntu 10.10 and previous, as it appears that the Natty Mines (or perhaps the Unity Mines) has changed the default UNKNOWN cell to an orange color. Will need to add support for that.
+Been tested on Linux Mint 14, and has been known to work on Ubuntu 10.10 and previous. As it appears that the Natty Mines (or perhaps the Unity Mines) has changed the default UNKNOWN cell to an orange color. Will need to add support for that.
 
 Also Unity does goofy things with menus, so changing the state to 'Large' doesn't work on Unity currently.
 
