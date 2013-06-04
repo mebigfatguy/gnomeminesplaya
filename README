@@ -6,8 +6,10 @@ The games plays until it wins or until a bomb is uncovered, at which point it wa
 
 To quit GnomeMinesPlaya the recommended thing to do is to type ctrl-q on the mines window, and the playa will notice the application quit, and will quit itself. Don't even bother to try to close with your mouse, as the playa always wins that game!
 
-Been tested on Linux Mint 14, and has been known to work on Ubuntu 10.10 and previous. As it appears that the Natty Mines (or perhaps the Unity Mines) has changed the default UNKNOWN cell to an orange color. Will need to add support for that.
+Been tested on Linux Mint 12, and has been known to work on Ubuntu 10.10 and previous. As it appears that the Natty Mines (or perhaps the Unity Mines) has changed the default UNKNOWN cell to an orange color. Will need to add support for that.
 
 Also Unity does goofy things with menus, so changing the state to 'Large' doesn't work on Unity currently.
+
+Newer distributions have changed how the game size is selected as well. The hope is these new guis will be supported eventually thru image processing... patches welcome!
 
 Licensed under Apache 2.0
