@@ -75,6 +75,10 @@
 			<manifest>
 				<attribute name="gnomeminesplaya-version" value="${gnomeminesplaya.version}"/>
 				<attribute name="Main-Class" value="com.mebigfatguy.gnomeminesplaya.GnomeMinesPlaya"/>
+                <attribute name="Application-Name" value="GnomeMinesPlaya" />
+                <attribute name="Permissions" value="all-permissions" />
+                <attribute name="Codebase" value="*" />
+
 			</manifest>
 		</jar>	
 	</target>
