@@ -169,7 +169,7 @@ public class MinesWindow {
 			if (islandOdds > bestScore ) {
 			    Point firstIsland = islandPoints.remove(random.nextInt(islandPoints.size()));
 			    Point island = firstIsland;
-			    while (islandPoints.size() > 0) {
+			    while (!islandPoints.isEmpty()) {
 			        if ((island.x > 0) && (island.x < (LARGE_COLUMNS-1)) && (island.y > 0) && (island.y < (LARGE_ROWS-1))) {
 			            return island;
 			        }
