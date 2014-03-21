@@ -63,10 +63,10 @@ public enum MinesColors {
     
     public static byte[][] getColorTable() {
         
-        int numColors = MinesColors.values().length;
-        byte[][] table = new byte[3][numColors];
-        
         MinesColors[] colors = MinesColors.values();
+        int numColors = colors.length;
+        byte[][] table = new byte[3][numColors];
+
         for (int i = 0; i < numColors; ++i) {
             Color c = colors[i].getColor();
             table[0][i] = (byte)c.getRed();
